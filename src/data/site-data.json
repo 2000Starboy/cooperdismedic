@@ -1,0 +1,208 @@
+{
+  "company": {
+    "name": "Cooper Dismedic",
+    "parentGroup": "Cooper Pharma",
+    "legalForm": "Société Anonyme (SA)",
+    "capital": "6 000 000 MAD",
+    "rc": "78753 - Casablanca",
+    "ice": "001535652000046",
+    "if": "2200843",
+    "foundedYear": 1995,
+    "parentFoundedYear": 1933
+  },
+  "contact": {
+    "address": "Lotissement Bachkou, Lot N°10, Rue 7, Polo, Casablanca",
+    "city": "Casablanca",
+    "country": "Maroc",
+    "phone": "+212 5 22 81 90 20",
+    "fax": "+212 5 22 81 50 52",
+    "emails": [
+      "contact@cooperdismedic.ma",
+      "contact@cooperdismedic.com"
+    ],
+    "legacyEmail": "dismedic@iam.net.ma",
+    "coordinates": {
+      "lat": 33.5554265,
+      "lng": -7.6254096
+    }
+  },
+  "hours": {
+    "ordering": {
+      "days": "Tous les jours",
+      "hours": "8h30 - 20h00",
+      "note": "Parfois jusqu'à 22h00"
+    },
+    "office": {
+      "days": "Lundi - Vendredi",
+      "morning": "9h00 - 13h00",
+      "afternoon": "16h00 - 20h00"
+    }
+  },
+  "social": {
+    "facebook": "",
+    "linkedin": "",
+    "instagram": "",
+    "twitter": ""
+  },
+  "stats": {
+    "groupEmployees": 1200,
+    "distributionCompanies": 9,
+    "exportCountries": 24,
+    "productSpecialties": 200,
+    "productPresentations": 300,
+    "partnerMultinationals": 20,
+    "yearsSinceGroupFounding": 93,
+    "yearsSinceDismedic": 31
+  },
+  "certifications": [
+    { "name": "BPF/GMP Maroc", "authority": "Ministère de la Santé" },
+    { "name": "ANSM", "authority": "Agence Nationale de Sécurité du Médicament (France)" },
+    { "name": "Saudi FDA", "authority": "Saudi Food & Drug Authority" },
+    { "name": "ISO 9001", "authority": "Organisation internationale de normalisation" }
+  ],
+  "team": [
+    {
+      "id": 1,
+      "name": "Hassouni Abderrahmane",
+      "role": "Président",
+      "service": "Direction Générale",
+      "description": "Direction stratégique et pilotage de l'entreprise",
+      "email": "",
+      "phone": "",
+      "photo": ""
+    },
+    {
+      "id": 2,
+      "name": "Tariq Ghita",
+      "role": "Pharmacien Responsable",
+      "service": "Pharmacovigilance & Conformité",
+      "description": "Conformité réglementaire, contrôle qualité et pharmacovigilance",
+      "email": "",
+      "phone": "",
+      "photo": ""
+    },
+    {
+      "id": 3,
+      "name": "Fatiha Bouhamame",
+      "role": "Comptable",
+      "service": "Comptabilité & Finances",
+      "description": "Gestion comptable, facturation et suivi financier",
+      "email": "",
+      "phone": "",
+      "photo": ""
+    },
+    {
+      "id": 4,
+      "name": "Belhaki Amal",
+      "role": "Responsable Achats",
+      "service": "Service Achat",
+      "description": "Achats, approvisionnement et relations fournisseurs",
+      "email": "",
+      "phone": "",
+      "photo": ""
+    },
+    {
+      "id": 5,
+      "name": "Bentass Amal",
+      "role": "Responsable Avoirs Pharmacie",
+      "service": "Avoirs & Retours Pharmacies",
+      "description": "Gestion des avoirs, retours et réclamations des pharmacies",
+      "email": "",
+      "phone": "",
+      "photo": ""
+    },
+    {
+      "id": 6,
+      "name": "Nouhaila Michmich",
+      "role": "Responsable Avoirs Labo",
+      "service": "Avoirs & Retours Laboratoires",
+      "description": "Gestion des avoirs et retours avec les laboratoires partenaires",
+      "email": "",
+      "phone": "",
+      "photo": ""
+    },
+    {
+      "id": 7,
+      "name": "Rabit Abdelatif",
+      "role": "Magazinier",
+      "service": "Stockage & Logistique",
+      "description": "Gestion des stocks, réception et expédition des marchandises",
+      "email": "",
+      "phone": "",
+      "photo": ""
+    },
+    {
+      "id": 8,
+      "name": "Azougagh Simohammed",
+      "role": "Responsable Quarantaine",
+      "service": "Contrôle Qualité & Quarantaine",
+      "description": "Contrôle qualité des produits entrants et gestion de la quarantaine",
+      "email": "",
+      "phone": "",
+      "photo": ""
+    },
+    {
+      "id": 9,
+      "name": "Youness Chakiri",
+      "role": "Responsable IT",
+      "service": "Systèmes d'Information",
+      "description": "Infrastructure informatique, base de données et développement",
+      "email": "",
+      "phone": "",
+      "photo": ""
+    }
+  ],
+  "services": [
+    {
+      "id": 1,
+      "name": "Direction Générale",
+      "employees": [1]
+    },
+    {
+      "id": 2,
+      "name": "Pharmacovigilance & Conformité",
+      "employees": [2]
+    },
+    {
+      "id": 3,
+      "name": "Comptabilité & Finances",
+      "employees": [3]
+    },
+    {
+      "id": 4,
+      "name": "Service Achat",
+      "employees": [4]
+    },
+    {
+      "id": 5,
+      "name": "Avoirs & Retours Pharmacies",
+      "employees": [5]
+    },
+    {
+      "id": 6,
+      "name": "Avoirs & Retours Laboratoires",
+      "employees": [6]
+    },
+    {
+      "id": 7,
+      "name": "Stockage & Logistique",
+      "employees": [7]
+    },
+    {
+      "id": 8,
+      "name": "Contrôle Qualité & Quarantaine",
+      "employees": [8]
+    },
+    {
+      "id": 9,
+      "name": "Systèmes d'Information",
+      "employees": [9]
+    }
+  ],
+  "contactForm": {
+    "recipients": [
+      "contact@cooperdismedic.ma",
+      "contact@cooperdismedic.com"
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Viewport: cover all phones including notched/foldable -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- SEO -->
+    <meta name="description" content="Cooper Dismedic — Distribution pharmaceutique et parapharmaceutique au Maroc depuis 1995. Membre du groupe Cooper Pharma, certifié BPF/GMP." />
+    <meta name="theme-color" content="#091E2F" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Cooper Dismedic — Distribution Pharmaceutique au Maroc" />
+    <meta property="og:description" content="Membre du groupe Cooper Pharma. Distribution pharmaceutique et parapharmaceutique certifiée BPF/GMP." />
+    <meta property="og:locale" content="fr_MA" />
+
+    <!-- Security headers via meta (defence-in-depth) -->
+    <!-- Primary CSP is set at server level (Apache .htaccess / cPanel) -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <!-- CSP: allows own origin + fonts + Web3Forms API + OpenStreetMap iframe -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline';
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: https:;
+      frame-src https://www.openstreetmap.org;
+      connect-src 'self' https://api.web3forms.com;
+      base-uri 'self';
+      form-action 'self' https://api.web3forms.com;
+      object-src 'none';
+    " />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- Preconnect to font CDN for faster load -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <title>Cooper Dismedic — Distribution Pharmaceutique</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,228 @@
+/* ============================================================================
+   Cooper Dismedic — Global Styles
+   Design System: "Premium Corporate Portal"
+   Inspired by: J&J, Roche, Merck & Co.
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   THEME TOKENS
+   ============================================================================ */
+@layer base {
+  :root, [data-theme="light"] {
+    --cd-bg:           210 40% 98%;        /* Soft clean off-white (#F8FAFC) */
+    --cd-surface:      0 0% 100%;          /* White card backgrounds */
+    --cd-surface-2:    210 40% 96%;
+    --cd-heading:      222 47% 11%;        /* Corporate slate-900 */
+    --cd-body:         215 16% 35%;        /* Slate-600 */
+    --cd-body-muted:   215 13% 55%;
+    
+    --cd-card:         0 0% 100%;
+    --cd-card-border:  214 32% 91%;        /* Slate-200 border */
+    --cd-divider:      214 32% 91%;
+
+    --cd-accent:       213 94% 45%;        /* Clean Pharma Blue */
+    --cd-accent-2:     160 84% 39%;        /* Clean Emerald Green */
+    --cd-accent-dim:   213 80% 95%;
+
+    --cd-success:      160 84% 39%;
+    --cd-danger:       0 72% 50%;
+
+    /* shadcn/ui defaults */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --primary: 213 94% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 50%;
+    --accent: 160 84% 39%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 32% 91%;
+    --input:  214 32% 91%;
+    --ring:   213 94% 45%;
+    --radius: 0.75rem;
+  }
+
+  [data-theme="dark"] {
+    --cd-bg:           222 47% 6%;
+    --cd-surface:      222 40% 10%;
+    --cd-surface-2:    222 35% 12%;
+    --cd-heading:      210 40% 98%;
+    --cd-body:         215 20% 68%;
+    --cd-body-muted:   215 15% 52%;
+    
+    --cd-card:         222 38% 10%;
+    --cd-card-border:  220 25% 16%;
+    --cd-divider:      220 25% 15%;
+
+    --cd-accent:       213 94% 55%;
+    --cd-accent-2:     160 84% 45%;
+    --cd-accent-dim:   213 60% 12%;
+
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 38% 10%;
+    --card-foreground: 210 40% 98%;
+    --primary: 213 94% 55%;
+    --primary-foreground: 0 0% 100%;
+    --border: 220 25% 16%;
+    --input:  220 25% 16%;
+    --ring:   213 94% 55%;
+    --radius: 0.75rem;
+  }
+}
+
+/* ============================================================================
+   BASE
+   ============================================================================ */
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply antialiased;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: hsl(var(--cd-bg));
+    color: hsl(var(--cd-body));
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: hsl(var(--cd-heading));
+  }
+}
+
+/* ============================================================================
+   SPACIOUS LAYOUT & SECTIONS
+   ============================================================================ */
+.section-premium {
+  @apply py-24 lg:py-32 relative overflow-hidden;
+  border-bottom: 1px solid hsl(var(--cd-card-border));
+}
+
+.section-label {
+  @apply inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider mb-5;
+  color: hsl(var(--cd-accent));
+}
+
+.section-label::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 2px;
+  background: hsl(var(--cd-accent));
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+   CARDS & CONTAINERS (Premium Editorial Style)
+   ============================================================================ */
+.premium-card {
+  background: hsl(var(--cd-surface));
+  border: 1px solid hsl(var(--cd-card-border));
+  border-radius: 1rem;
+  padding: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.premium-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+}
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-bold text-sm transition-all duration-300;
+  background: hsl(var(--cd-accent));
+  color: white;
+  box-shadow: 0 4px 15px hsl(var(--cd-accent) / 0.15);
+}
+.btn-primary:hover {
+  background: hsl(var(--cd-accent) / 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px hsl(var(--cd-accent) / 0.25);
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-bold text-sm transition-all duration-300 border;
+  background: hsl(var(--cd-surface));
+  border-color: hsl(var(--cd-card-border));
+  color: hsl(var(--cd-heading));
+}
+.btn-secondary:hover {
+  background: hsl(var(--cd-bg));
+  border-color: hsl(var(--cd-heading));
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-bold text-xs transition-all duration-300;
+  color: hsl(var(--cd-accent));
+}
+.btn-ghost:hover {
+  background: hsl(var(--cd-accent) / 0.05);
+}
+
+/* ============================================================================
+   GRADIENTS & TEXT
+   ============================================================================ */
+.gradient-text {
+  background: linear-gradient(135deg, hsl(var(--cd-accent)) 0%, hsl(var(--cd-accent-2)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom hides for slider scrollbars */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Fine-line elements */
+.fine-line {
+  height: 1px;
+  background-color: hsl(var(--cd-card-border));
+  width: 100%;
+}
+.vertical-line {
+  width: 1px;
+  background-color: hsl(var(--cd-card-border));
+}
+
+/* ============================================================================
+   ANIMATIONS & GRAPHICS
+   ============================================================================ */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.3; }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 8s infinite ease-in-out;
+}
+
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.015;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}

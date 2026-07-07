@@ -1,0 +1,92 @@
+{
+  "families": [
+    {
+      "id_famille": 1,
+      "libelle": "Antalgiques",
+      "code": "ANTALG",
+      "description": "Médicaments contre la douleur",
+      "ordre_affichage": 1,
+      "Supprime": "N"
+    },
+    {
+      "id_famille": 2,
+      "libelle": "Anti-inflammatoires",
+      "code": "ANTIINF",
+      "description": "AINS et corticoïdes",
+      "ordre_affichage": 2,
+      "Supprime": "N"
+    },
+    {
+      "id_famille": 3,
+      "libelle": "Antibiotiques",
+      "code": "ANTIBIO",
+      "description": "Antibactériens systémiques",
+      "ordre_affichage": 3,
+      "Supprime": "N"
+    },
+    {
+      "id_famille": 4,
+      "libelle": "Vitamines",
+      "code": "VITAM",
+      "description": "Compléments vitaminés",
+      "ordre_affichage": 4,
+      "Supprime": "N"
+    },
+    {
+      "id_famille": 5,
+      "libelle": "Antulcéreux",
+      "code": "ANTULC",
+      "description": "IPP et antiacides",
+      "ordre_affichage": 5,
+      "Supprime": "N"
+    },
+    {
+      "id_famille": 6,
+      "libelle": "Antidiabétiques",
+      "code": "ANTIDIAB",
+      "description": "Hypoglycémiants oraux et insulines",
+      "ordre_affichage": 6,
+      "Supprime": "N"
+    },
+    {
+      "id_famille": 7,
+      "libelle": "Antihypertenseurs",
+      "code": "ANTIHYP",
+      "description": "Médicaments cardiovasculaires",
+      "ordre_affichage": 7,
+      "Supprime": "N"
+    },
+    {
+      "id_famille": 8,
+      "libelle": "Matériel Médical",
+      "code": "MATMED",
+      "description": "Dispositifs médicaux",
+      "ordre_affichage": 8,
+      "Supprime": "N"
+    },
+    {
+      "id_famille": 9,
+      "libelle": "Consommables",
+      "code": "CONSOM",
+      "description": "Produits à usage unique",
+      "ordre_affichage": 9,
+      "Supprime": "N"
+    },
+    {
+      "id_famille": 10,
+      "libelle": "Antihistaminiques",
+      "code": "ANTIHIST",
+      "description": "Antiallergiques",
+      "ordre_affichage": 10,
+      "Supprime": "N"
+    },
+    {
+      "id_famille": 11,
+      "libelle": "Protection",
+      "code": "PROTEC",
+      "description": "Équipements de protection individuelle",
+      "ordre_affichage": 11,
+      "Supprime": "N"
+    }
+  ]
+}

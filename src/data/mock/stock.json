@@ -1,0 +1,124 @@
+{
+  "stock": [
+    {
+      "id_stock": 1,
+      "id_produit": 1001,
+      "id_depot": 1,
+      "quantite": 1250,
+      "quantite_reservee": 150,
+      "quantite_disponible": 1100,
+      "date_derniere_entree": "2026-01-28T10:30:00Z",
+      "date_derniere_sortie": "2026-02-05T14:20:00Z"
+    },
+    {
+      "id_stock": 2,
+      "id_produit": 1002,
+      "id_depot": 1,
+      "quantite": 980,
+      "quantite_reservee": 80,
+      "quantite_disponible": 900,
+      "date_derniere_entree": "2026-01-25T09:00:00Z",
+      "date_derniere_sortie": "2026-02-06T11:45:00Z"
+    },
+    {
+      "id_stock": 3,
+      "id_produit": 1003,
+      "id_depot": 1,
+      "quantite": 45,
+      "quantite_reservee": 10,
+      "quantite_disponible": 35,
+      "date_derniere_entree": "2026-01-20T08:15:00Z",
+      "date_derniere_sortie": "2026-02-04T16:30:00Z"
+    },
+    {
+      "id_stock": 4,
+      "id_produit": 1004,
+      "id_depot": 1,
+      "quantite": 3200,
+      "quantite_reservee": 200,
+      "quantite_disponible": 3000,
+      "date_derniere_entree": "2026-02-01T11:00:00Z",
+      "date_derniere_sortie": "2026-02-06T10:00:00Z"
+    },
+    {
+      "id_stock": 5,
+      "id_produit": 1005,
+      "id_depot": 1,
+      "quantite": 520,
+      "quantite_reservee": 45,
+      "quantite_disponible": 475,
+      "date_derniere_entree": "2026-01-22T14:30:00Z",
+      "date_derniere_sortie": "2026-02-05T09:15:00Z"
+    },
+    {
+      "id_stock": 6,
+      "id_produit": 1006,
+      "id_depot": 1,
+      "quantite": 85,
+      "quantite_reservee": 15,
+      "quantite_disponible": 70,
+      "date_derniere_entree": "2026-01-18T10:00:00Z",
+      "date_derniere_sortie": "2026-02-03T13:20:00Z"
+    },
+    {
+      "id_stock": 7,
+      "id_produit": 1007,
+      "id_depot": 1,
+      "quantite": 380,
+      "quantite_reservee": 30,
+      "quantite_disponible": 350,
+      "date_derniere_entree": "2026-01-30T09:45:00Z",
+      "date_derniere_sortie": "2026-02-06T15:00:00Z"
+    },
+    {
+      "id_stock": 8,
+      "id_produit": 1008,
+      "id_depot": 1,
+      "quantite": 5000,
+      "quantite_reservee": 800,
+      "quantite_disponible": 4200,
+      "date_derniere_entree": "2026-02-02T08:00:00Z",
+      "date_derniere_sortie": "2026-02-06T12:00:00Z"
+    },
+    {
+      "id_stock": 9,
+      "id_produit": 1009,
+      "id_depot": 1,
+      "quantite": 2800,
+      "quantite_reservee": 350,
+      "quantite_disponible": 2450,
+      "date_derniere_entree": "2026-01-29T11:30:00Z",
+      "date_derniere_sortie": "2026-02-05T16:45:00Z"
+    },
+    {
+      "id_stock": 10,
+      "id_produit": 1010,
+      "id_depot": 1,
+      "quantite": 1500,
+      "quantite_reservee": 120,
+      "quantite_disponible": 1380,
+      "date_derniere_entree": "2026-01-26T13:00:00Z",
+      "date_derniere_sortie": "2026-02-04T10:30:00Z"
+    },
+    {
+      "id_stock": 11,
+      "id_produit": 1011,
+      "id_depot": 1,
+      "quantite": 25,
+      "quantite_reservee": 5,
+      "quantite_disponible": 20,
+      "date_derniere_entree": "2026-01-15T09:00:00Z",
+      "date_derniere_sortie": "2026-02-02T14:00:00Z"
+    },
+    {
+      "id_stock": 12,
+      "id_produit": 1012,
+      "id_depot": 1,
+      "quantite": 15000,
+      "quantite_reservee": 2000,
+      "quantite_disponible": 13000,
+      "date_derniere_entree": "2026-02-04T07:30:00Z",
+      "date_derniere_sortie": "2026-02-06T11:00:00Z"
+    }
+  ]
+}

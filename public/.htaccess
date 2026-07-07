@@ -1,0 +1,51 @@
+# Cooper Dismedic — Apache config for React SPA on Hostinger shared hosting
+# Vite copies this file to dist/.htaccess automatically during build
+
+Options -MultiViews -Indexes
+
+# ── React client-side routing ──────────────────────────────────────────────
+# All routes (except real files/folders) → index.html
+RewriteEngine On
+RewriteBase /
+
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+
+# ── Security headers ───────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set X-XSS-Protection "1; mode=block"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# ── Performance: cache static assets ──────────────────────────────────────
+<IfModule mod_expires.c>
+  ExpiresActive On
+  # JS/CSS (Vite hashes filenames — safe to cache 1 year)
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/css               "access plus 1 year"
+  # Images & fonts
+  ExpiresByType image/png              "access plus 1 month"
+  ExpiresByType image/jpeg             "access plus 1 month"
+  ExpiresByType image/svg+xml          "access plus 1 month"
+  ExpiresByType image/webp             "access plus 1 month"
+  ExpiresByType font/woff2             "access plus 1 year"
+  ExpiresByType font/woff              "access plus 1 year"
+  # HTML — always revalidate (so new deploys are picked up)
+  ExpiresByType text/html              "access plus 0 seconds"
+</IfModule>
+
+# ── Compression (speeds up load time significantly) ────────────────────────
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript
+  AddOutputFilterByType DEFLATE image/svg+xml application/json font/woff2
+</IfModule>
+
+# ── Block access to sensitive files ───────────────────────────────────────
+<FilesMatch "\.(env|deploy|json\.map|log)$">
+  Require all denied
+</FilesMatch>
