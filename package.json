@@ -30,7 +30,7 @@
     "tailwindcss": "^3.4.19",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "~5.9.3",
-    "vite": "^7.2.4"
+    "vite": "^5.4.11"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "*"
