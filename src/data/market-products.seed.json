@@ -768,7 +768,95 @@
     "relatedIds": []
   },
   {
-    "id": 1107,
+    "id": 1112,
+    "name": "SILDÉNAFIL 50MG",
+    "dci": "SILDÉNAFIL 50mg",
+    "laboratory": "COP PHARMA",
+    "form": "COMPRIMÉ",
+    "dosage": "50mg",
+    "therapeuticClass": "INHIBITEURS DE LA PDE5",
+    "categories": [
+      "cardiovascular"
+    ],
+    "description": "Produit de référence à base de sildénafil pour le traitement de la dysfonction érectile.",
+    "indications": "Dysfonction érectile, hypertension artérielle pulmonaire.",
+    "posology": "1 comprimé par jour selon prescription.",
+    "contraindications": "Hypersensibilité au sildénafil, nitrites.",
+    "sideEffects": "Céphalées, rougeurs, troubles digestifs.",
+    "conservation": "Conserver au sec, à l'abri de la lumière.",
+    "pregnancyCategory": "N/A",
+    "isPrescriptionRequired": true,
+    "ppm": 220,
+    "relatedIds": []
+  },
+  {
+    "id": 1113,
+    "name": "TADALAFIL 20MG",
+    "dci": "TADALAFIL 20mg",
+    "laboratory": "COP PHARMA",
+    "form": "COMPRIMÉ",
+    "dosage": "20mg",
+    "therapeuticClass": "INHIBITEURS DE LA PDE5",
+    "categories": [
+      "cardiovascular"
+    ],
+    "description": "Inhibiteur de la PDE5 utilisé pour la dysfonction érectile et l'hypertension artérielle pulmonaire.",
+    "indications": "Dysfonction érectile, hypertension artérielle pulmonaire.",
+    "posology": "1 comprimé par jour selon prescription.",
+    "contraindications": "Hypersensibilité au tadalafil, interactions nitrates.",
+    "sideEffects": "Maux de tête, congestions nasales.",
+    "conservation": "Conserver au sec.",
+    "pregnancyCategory": "N/A",
+    "isPrescriptionRequired": true,
+    "ppm": 230,
+    "relatedIds": []
+  },
+  {
+    "id": 1114,
+    "name": "VARDÉNAFIL 10MG",
+    "dci": "VARDÉNAFIL 10mg",
+    "laboratory": "COP PHARMA",
+    "form": "COMPRIMÉ",
+    "dosage": "10mg",
+    "therapeuticClass": "INHIBITEURS DE LA PDE5",
+    "categories": [
+      "cardiovascular"
+    ],
+    "description": "Inhibiteur de la PDE5 utilisé pour le traitement de la dysfonction érectile.",
+    "indications": "Dysfonction érectile.",
+    "posology": "1 comprimé au moment du besoin.",
+    "contraindications": "Grossesse, nitrites.",
+    "sideEffects": "Céphalées, bouffées de chaleur.",
+    "conservation": "À l'abri de l'humidité.",
+    "pregnancyCategory": "N/A",
+    "isPrescriptionRequired": true,
+    "ppm": 210,
+    "relatedIds": []
+  },
+  {
+    "id": 1115,
+    "name": "AVANAFIL 100MG",
+    "dci": "AVANAFIL 100mg",
+    "laboratory": "COP PHARMA",
+    "form": "COMPRIMÉ",
+    "dosage": "100mg",
+    "therapeuticClass": "INHIBITEURS DE LA PDE5",
+    "categories": [
+      "cardiovascular"
+    ],
+    "description": "Inhibiteur de la PDE5 utilisé pour la dysfonction érectile.",
+    "indications": "Dysfonction érectile.",
+    "posology": "1 comprimé avant le rapport sexuel.",
+    "contraindications": "Grossesse, nitrites.",
+    "sideEffects": "Maux de tête, étourdissements.",
+    "conservation": "Conserver au sec.",
+    "pregnancyCategory": "N/A",
+    "isPrescriptionRequired": true,
+    "ppm": 240,
+    "relatedIds": []
+  },
+  {
+    "id": 1116,
     "name": "EN 2050, L’ANTIBIORESISTANCE FERA UN MORT TOUTES LES 3 SECONDES",
     "dci": "À préciser",
     "laboratory": "À préciser",
@@ -789,7 +877,7 @@
     "relatedIds": []
   },
   {
-    "id": 1108,
+    "id": 1117,
     "name": "NOVARTIS SCINDE SA DIVISION PHARMACEUTICALS EN DEUX",
     "dci": "À préciser",
     "laboratory": "À préciser",
@@ -810,7 +898,7 @@
     "relatedIds": []
   },
   {
-    "id": 1109,
+    "id": 1118,
     "name": "ANTIDÉPRESSEURS ET GROSSESSE: L&RSQUO; ANSM APPELLE À LA PRUDENCE",
     "dci": "À préciser",
     "laboratory": "À préciser",
@@ -831,7 +919,7 @@
     "relatedIds": []
   },
   {
-    "id": 1110,
+    "id": 1119,
     "name": "AVIS FAVORABLE POUR SIX NOUVEAUX MÉDICAMENTS",
     "dci": "À préciser",
     "laboratory": "À préciser",
@@ -852,7 +940,7 @@
     "relatedIds": []
   },
   {
-    "id": 1111,
+    "id": 1120,
     "name": "LE SILDÉNAFIL EN PATCH SERAIT PLUS EFFICACE",
     "dci": "À préciser",
     "laboratory": "À préciser",

@@ -809,58 +809,80 @@ export function getRelatedProducts(product: Product, limit = 4, products: Produc
   // Filter out low-quality placeholder products from candidate pool
   const candidates = pool.filter((c) => !isPlaceholder(c));
 
-  // If the current product is a placeholder (likely an article), attempt a token-based lookup
+  // If the current product is a placeholder (likely an article), attempt a molecule/class-based lookup
   const currentIsPlaceholder = isPlaceholder(product);
   if (currentIsPlaceholder) {
-    const title = String(product.name || '').toLowerCase();
+    const normalizeArticleText = (value: string) =>
+      String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
 
-    // Detect specific domain keywords and map to product filters
-    const mappings = [
-      { key: /antidepr|antid[eé]press/i, kind: 'antidepressant' },
-      { key: /antisept/i, kind: 'antiseptic' },
-      { key: /grossess/i, kind: 'pregnancy' },
+    const articleText = [product.name, product.description, product.indications, product.posology]
+      .filter(Boolean)
+      .map(normalizeArticleText)
+      .join(' ');
+
+    const articlePatterns = [
+      {
+        pattern: /\bsild[eé]nafil\b/i,
+        dciKeywords: ['sildenafil'],
+        therapeuticClassKeywords: ['pde5', 'phosphodiesterase'],
+      },
+      {
+        pattern: /\btadalafil\b/i,
+        dciKeywords: ['tadalafil'],
+        therapeuticClassKeywords: ['pde5', 'phosphodiesterase'],
+      },
+      {
+        pattern: /\bvardenafil\b/i,
+        dciKeywords: ['vardenafil'],
+        therapeuticClassKeywords: ['pde5', 'phosphodiesterase'],
+      },
+      {
+        pattern: /\bavanafil\b/i,
+        dciKeywords: ['avanafil'],
+        therapeuticClassKeywords: ['pde5', 'phosphodiesterase'],
+      },
+      {
+        pattern: /\bpde5\b|\bphosphodiesterase\b/i,
+        dciKeywords: [],
+        therapeuticClassKeywords: ['pde5', 'phosphodiesterase', 'inhibiteur de la pde5'],
+      },
     ];
 
-    const found = mappings.find((m) => m.key.test(title));
-    if (found && found.kind === 'antidepressant') {
-      const antidepressantDcis = [
-        'sertraline',
-        'fluoxetine',
-        'citalopram',
-        'escitalopram',
-        'paroxetine',
-        'mirtazapine',
-        'venlafaxine',
-        'duloxetine',
-        'amitriptyline',
-        'nortriptyline',
-      ];
+    const matchedPatterns = articlePatterns.filter((entry) => entry.pattern.test(articleText));
+    const directMoleculeKeywords = matchedPatterns.flatMap((entry) => entry.dciKeywords);
+    const directCandidates = candidates.filter((c) => {
+      const hay = [c.dci, c.name].map(normalizeArticleText).join(' ');
+      return directMoleculeKeywords.some((keyword) => hay.includes(keyword));
+    });
 
-      const hits = candidates.filter((c) => {
-        const tc = String(c.therapeuticClass || '').toLowerCase();
-        const dci = String(c.dci || '').toLowerCase();
-        const name = String(c.name || '').toLowerCase();
-        if (tc.includes('antid') || tc.includes('antid[eé]p')) return true;
-        for (const d of antidepressantDcis) {
-          if (dci.includes(d) || name.includes(d)) return true;
-        }
-        return false;
+    if (directCandidates.length > 0) {
+      return directCandidates.slice(0, limit);
+    }
+
+    const classKeywords = matchedPatterns.flatMap((entry) => entry.therapeuticClassKeywords);
+    if (classKeywords.length > 0) {
+      const classMatches = candidates.filter((c) => {
+        const tc = normalizeArticleText(String(c.therapeuticClass || ''));
+        const hay = [c.dci, c.name, c.therapeuticClass].map(normalizeArticleText).join(' ');
+        return classKeywords.some((keyword) => tc.includes(keyword) || hay.includes(keyword));
       });
-
-      // If we found explicit antidepressant matches, return them sorted by name
-      if (hits.length > 0) return hits.slice(0, limit);
+      if (classMatches.length > 0) {
+        return classMatches.slice(0, limit);
+      }
     }
 
     // fallback: simple token overlap (but ignore short stopwords)
     const stopwords = new Set(['et', 'la', 'le', 'les', 'de', 'des', 'a', 'à', 'pour', 'sur', 'du', 'une', 'un', 'l', 'rsquo']);
-    const tokens = product.name
-      .toLowerCase()
+    const tokens = articleText
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9\s]+/g, ' ')
       .split(/\s+/)
       .filter((t) => t && !stopwords.has(t))
-      .slice(0, 10);
+      .slice(0, 12);
 
     const scored = candidates
       .map((c) => {
