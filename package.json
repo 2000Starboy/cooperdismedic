@@ -11,6 +11,7 @@
     "deploy:skip-build": "node deploy.mjs --skip-build",
     "deploy:dry-run": "node deploy.mjs --dry-run",
     "products:sync": "node ./scripts/sync-products.mjs",
+    "products:sync:daily": "node ./scripts/sync-products.mjs",
     "products:import": "node ./scripts/import-product-from-url.mjs",
     "products:discover": "node ./scripts/discover-products.mjs",
     "products:approve": "node ./scripts/approve-pending.mjs",

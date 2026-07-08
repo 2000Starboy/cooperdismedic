@@ -7,7 +7,7 @@ import { Search, Pill, Activity, ShieldPlus, ArrowRight, ArrowLeft, Eye, Bone, S
 import { useTranslation, useIsRTL } from '@/lib/i18n';
 import { PRODUCTS as fallbackProducts } from '@/data/products-catalogue';
 import { Product } from '@/types';
-import { loadProductsFromApi } from '@/lib/products-data';
+import { loadCatalogProducts } from '@/lib/products-data';
 
 const categoryIcons: Record<string, React.ElementType> = {
   Cardiologie: HeartPulse,
@@ -46,7 +46,7 @@ export default function ProductsPage({ onProductClick, onBack }: ProductsPagePro
 
   useEffect(() => {
     let cancelled = false;
-    loadProductsFromApi().then((data) => {
+    loadCatalogProducts().then((data) => {
       if (!cancelled) setProducts(data);
     });
     return () => {

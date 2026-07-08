@@ -1,9 +1,9 @@
 /**
- * Debug script: Analyze medicament.ma page structure
+ * Debug script: Analyze cure.ma page structure
  * This fetches a page and logs what data can be extracted using only regex
  */
 
-const TEST_URL = 'https://medicament.ma/medicament/actifed-comprime/';
+const TEST_URL = 'https://www.cure.ma/medicaments/paracetamol/';
 
 async function analyzePageStructure() {
   try {

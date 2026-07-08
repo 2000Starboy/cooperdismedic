@@ -4,7 +4,7 @@
 // ============================================================================
 
 import { useState, useEffect, useCallback } from 'react';
-import { Menu, X, ArrowRight, Globe, ChevronDown, Sun, Moon } from 'lucide-react';
+import { Menu, X, ArrowRight, Globe, ChevronDown, Sun, Moon, Bell } from 'lucide-react';
 import { useTranslation, localeNames, localeFlags, type Locale } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
 
@@ -29,6 +29,14 @@ export default function Navigation({ darkBackground = false }: NavigationProps) 
   const [isMobileOpen,  setIsMobileOpen]  = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
   const [isLangOpen,    setIsLangOpen]    = useState(false);
+  const [isNotifOpen,   setIsNotifOpen]   = useState(false);
+  const [notification,  setNotification]  = useState<{
+    syncedAt: string;
+    count: number;
+    importedCount: number;
+    importedProducts: Array<{ id: number; name: string; dci: string; url?: string }>;
+  } | null>(null);
+  const [seenSyncAt, setSeenSyncAt] = useState<string | null>(null);
 
   // ── Scroll & section tracking ─────────────────────────────────────
   useEffect(() => {
@@ -73,6 +81,82 @@ export default function Navigation({ darkBackground = false }: NavigationProps) 
   };
 
   const isDark = theme === 'dark' || darkBackground;
+
+  const hasNewNotification = Boolean(
+    notification?.importedCount &&
+    notification.syncedAt &&
+    notification.syncedAt !== seenSyncAt
+  );
+
+  const formatSyncDate = useCallback((value: string) => {
+    try {
+      return new Intl.DateTimeFormat(locale, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }).format(new Date(value));
+    } catch {
+      return value;
+    }
+  }, [locale]);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem('cd-last-sync-seen');
+    if (saved) setSeenSyncAt(saved);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const endpoints = ['/api/products/last-sync', '/api/last-sync.json', '/last-sync.json'];
+        for (const endpoint of endpoints) {
+          try {
+            const response = await fetch(endpoint, { cache: 'no-store' });
+            if (!response.ok) continue;
+            const data = await response.json();
+            const normalized = {
+              syncedAt: String(data.syncedAt ?? ''),
+              count: Number(data.count ?? 0),
+              importedCount: Number(data.importedCount ?? (Array.isArray(data.importedProducts) ? data.importedProducts.length : 0)),
+              importedProducts: Array.isArray(data.importedProducts) ? data.importedProducts : [],
+            };
+            if (active) setNotification(normalized);
+            return;
+          } catch {
+            // try next endpoint
+          }
+        }
+      } catch {
+        // ignore fallback failures
+      }
+    };
+    load();
+    const timer = window.setInterval(load, 5 * 60 * 1000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  const markNotificationsSeen = () => {
+    if (notification?.syncedAt) {
+      window.localStorage.setItem('cd-last-sync-seen', notification.syncedAt);
+      setSeenSyncAt(notification.syncedAt);
+      setNotification((prev) => (prev ? { ...prev, importedCount: 0 } : prev));
+    }
+  };
+
+
+
+  const toggleNotifications = () => {
+    setIsNotifOpen((prev) => {
+      const next = !prev;
+      if (!prev) markNotificationsSeen();
+      return next;
+    });
+  };
+
+  const x = (count: number) => (count > 1 ? 's' : '');
 
   // Compute nav background based on scroll
   const navBg: React.CSSProperties = isScrolled
@@ -151,7 +235,94 @@ export default function Navigation({ darkBackground = false }: NavigationProps) 
             </div>
 
             {/* Right Controls */}
-            <div className="hidden lg:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-3 relative">
+
+              {/* Notifications */}
+              <div className="relative">
+                <button
+                  onClick={toggleNotifications}
+                  className="flex items-center justify-center w-9 h-9 rounded-full border transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  style={{ color: headingColor, borderColor: isDark ? '#334155' : '#E2E8F0' }}
+                  aria-label="Notifications"
+                >
+                  <Bell size={15} />
+                  {(notification?.importedCount && notification.syncedAt !== seenSyncAt) ? (
+                    <span className="absolute top-0 right-0 inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white px-1">
+                      {notification.importedCount}
+                    </span>
+                  ) : hasNewNotification ? (
+                    <span className="absolute top-1 right-1 inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                  ) : null}
+                </button>
+
+                {isNotifOpen && (
+                  <div className="absolute right-0 mt-2 w-80 rounded-2xl border bg-white text-slate-900 shadow-xl dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 z-10">
+                    <div className="px-4 py-3 border-b dark:border-slate-800">
+                      <div className="text-sm font-semibold">Dernière synchronisation</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
+                        {notification ? formatSyncDate(notification.syncedAt) : 'Chargement...'}
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      {!notification ? (
+                        <div className="text-sm text-slate-500 dark:text-slate-400">Impossible de charger les notifications.</div>
+                      ) : notification.importedCount > 0 ? (
+                        <>
+                          <div className="text-sm font-medium mb-3">{notification.importedCount} nouveau{x(notification.importedCount)}</div>
+                          <ul className="space-y-3 max-h-52 overflow-y-auto pr-1">
+                            {notification.importedProducts.slice(0, 5).map((item) => (
+                              <li key={item.id}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    // mark as seen
+                                    markNotificationsSeen();
+
+                                    // Build a minimal product object to open in the app
+                                    const product = {
+                                      id: Number(item.id) || -1,
+                                      name: item.name || 'Produit',
+                                      dci: item.dci || 'À préciser',
+                                      laboratory: 'À préciser',
+                                      form: 'À préciser',
+                                      dosage: 'À préciser',
+                                      therapeuticClass: 'Produit importé',
+                                      categories: ['digestive'],
+                                      description: item.dci || '',
+                                      indications: 'À compléter',
+                                      posology: 'À compléter',
+                                      contraindications: 'À compléter',
+                                      sideEffects: 'À compléter',
+                                      conservation: 'À compléter',
+                                      pregnancyCategory: 'N/A',
+                                      isPrescriptionRequired: false,
+                                      relatedIds: [],
+                                    };
+
+                                    // Dispatch a global event the app listens to
+                                    try {
+                                      window.dispatchEvent(new CustomEvent('cd:open-product', { detail: { product } }));
+                                    } catch (e) {
+                                      // fallback: just open in new tab if url present
+                                      if (item.url) window.open(item.url, '_blank');
+                                    }
+                                  }}
+                                  className="w-full text-left rounded-2xl border border-slate-200 bg-slate-50 p-3 transition-colors duration-200 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"
+                                >
+                                  <div className="text-sm font-semibold">{item.name}</div>
+                                  <div className="text-[11px] text-slate-500 dark:text-slate-400">{item.dci}</div>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      ) : (
+                        <div className="text-sm text-slate-500 dark:text-slate-400">Aucune nouvelle importation.</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Theme Toggle */}
               <button

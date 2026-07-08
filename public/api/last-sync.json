@@ -1,4 +1,37 @@
 {
-  "syncedAt": "2026-07-08T11:04:46.533Z",
-  "count": 43
+  "syncedAt": "2026-07-08T22:43:17.000Z",
+  "count": 19,
+  "importedCount": 5,
+  "importedProducts": [
+    {
+      "id": 1013,
+      "name": "PARANTAL C 1000, COMPRIMÉ EFFERVESCENT",
+      "dci": "Paracetamol | Acide Ascorbique",
+      "url": "https://www.cure.ma/medicaments/parantal-c-1000-comprime-effervescent"
+    },
+    {
+      "id": 1014,
+      "name": "PARACETAMOL B. BRAUN 10 MG, SOLUTION POUR PERFUSION",
+      "dci": "Paracétamol",
+      "url": "https://www.cure.ma/medicaments/paracetamol-b-braun-10-mg-solution-pour-perfusion"
+    },
+    {
+      "id": 1015,
+      "name": "AMOXIL 500 MG, COMPRIMÉ DISPERSIBLE",
+      "dci": "Amoxicilline",
+      "url": "https://www.cure.ma/medicaments/amoxil-500-mg-comprime-dispersible"
+    },
+    {
+      "id": 1016,
+      "name": "AVELOX 400 MG IV, SOLUTÉ INJECTABLE",
+      "dci": "Moxifloxacine",
+      "url": "https://www.cure.ma/medicaments/avelox-400-mg-iv-solute-injectable"
+    },
+    {
+      "id": 1017,
+      "name": "FLAGYL 250 MG, COMPRIMÉ",
+      "dci": "Métronidazole",
+      "url": "https://www.cure.ma/medicaments/flagyl-250-mg-comprime"
+    }
+  ]
 }

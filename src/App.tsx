@@ -70,6 +70,21 @@ function AppContent() {
     setView('detail');
   }, []);
 
+  // Listen for global open-product events (e.g., notification clicks)
+  useEffect(() => {
+    const handler = (ev: Event) => {
+      try {
+        // @ts-ignore
+        const detail = ev?.detail;
+        if (detail?.product) openDetail(detail.product);
+      } catch (e) {
+        // ignore
+      }
+    };
+    window.addEventListener('cd:open-product' as any, handler as any);
+    return () => window.removeEventListener('cd:open-product' as any, handler as any);
+  }, [openDetail]);
+
   const goToProducts = useCallback(() => setView('products'), []);
 
   const goHome = useCallback(() => {

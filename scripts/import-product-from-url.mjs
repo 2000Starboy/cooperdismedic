@@ -106,6 +106,8 @@ export function extractProductDataFromHtml(html, sourceUrl = '') {
   const name = normalizeText(jsonLd?.name || ogTitle || twitterTitle || h1 || h2 || title || sourceUrl.split('/').filter(Boolean).pop() || 'Produit importé');
   const dci = normalizeText(
     extractByLabel(plainText, ['DCI', 'Principe actif', 'Substance active', 'Substance active ingredient', 'Active ingredient', 'Substance']) ||
+      jsonLd?.activeIngredient ||
+      jsonLd?.drugClass ||
       jsonLd?.additionalProperty?.find((entry) => /dci|active|principe|substance/i.test(entry.name || ''))?.value
   );
   const laboratory = normalizeText(
@@ -113,8 +115,15 @@ export function extractProductDataFromHtml(html, sourceUrl = '') {
       jsonLd?.brand?.name ||
       jsonLd?.manufacturer?.name
   );
-  const form = normalizeText(extractByLabel(plainText, ['Forme', 'Formulation', 'Présentation', 'Présentation galénique', 'Galénique']));
-  const dosage = normalizeText(extractByLabel(plainText, ['Dosage', 'Dose', 'Concentration', 'Dosage recommandé', 'Dose recommandée', 'Dosage thérapeutique']));
+  const form = normalizeText(
+    extractByLabel(plainText, ['Forme', 'Formulation', 'Présentation', 'Présentation galénique', 'Galénique']) ||
+      jsonLd?.dosageForm
+  );
+  const dosage = normalizeText(
+    extractByLabel(plainText, ['Dosage', 'Dose', 'Concentration', 'Dosage recommandé', 'Dose recommandée', 'Dosage thérapeutique']) ||
+      jsonLd?.dosage ||
+      jsonLd?.dosageForm
+  );
 
   return {
     name,
@@ -191,17 +200,63 @@ function looksLikeInvalidPage(html, url) {
   return urlLooksBad || contentLooksBad;
 }
 
-function looksLikeProductPage(html, extracted) {
-  const plainText = stripHtml(html).toLowerCase();
-  const hasProductMetadata = Boolean(extracted.dci && extracted.dci !== 'À préciser')
-    || Boolean(extracted.laboratory && extracted.laboratory !== 'À préciser')
-    || Boolean(extracted.form && extracted.form !== 'À préciser')
-    || Boolean(extracted.dosage && extracted.dosage !== 'À préciser');
-  const hasStructuredData = /application\/ld\+json/i.test(html);
-  const hasProductSignals = /(dci|laboratoire|laboratory|fabricant|manufacturer|forme|dosage|substance active|principe actif|composition|présentation|médicament|medicament|produit|product)/i.test(plainText);
-  const looksLikeArticle = /article|actualité|actualite|blog|news|actualité/i.test((extracted.name || '').toLowerCase());
+function isPlausibleProductField(value, fieldName) {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (!normalized || normalized === 'à préciser' || normalized === 'a preciser') return false;
 
-  return (hasProductMetadata || hasStructuredData || hasProductSignals) && !looksLikeArticle;
+  if (fieldName === 'dosage') {
+    return /\d/.test(normalized) || /(mg|ml|g|µg|mcg|%|ui|unité|capsule|comprim|gélul|spray|pommade|patch)/i.test(normalized);
+  }
+
+  if (fieldName === 'form') {
+    return /(comprimé|capsule|gélule|solution|sirop|sachet|patch|crème|gel|spray|dispositif|ampoule|injection|suppositoire|collyre|pommade)/i.test(normalized) || normalized.length <= 40;
+  }
+
+  if (fieldName === 'laboratory') {
+    return normalized.length >= 3 && !/^(article|actualité|actualite|blog|news|communiqué|communiqu)/i.test(normalized);
+  }
+
+  if (fieldName === 'dci') {
+    return normalized.length >= 3 && !/^(article|actualité|actualite|blog|news|communiqué|communiqu)/i.test(normalized);
+  }
+
+  return normalized.length > 0;
+}
+
+function looksLikeInvalidProductExtraction(extracted) {
+  const suspectTitle = String(extracted.name || '').toLowerCase();
+  const hasArticleWords = /(article|actualité|actualite|blog|news|communiqu|communiqué)/i.test(suspectTitle);
+  const overlyLongTitle = suspectTitle.length > 70;
+  const fieldCount = [
+    isPlausibleProductField(extracted.dci, 'dci'),
+    isPlausibleProductField(extracted.laboratory, 'laboratory'),
+    isPlausibleProductField(extracted.form, 'form'),
+    isPlausibleProductField(extracted.dosage, 'dosage'),
+  ].filter(Boolean).length;
+
+  return hasArticleWords && overlyLongTitle && fieldCount < 2;
+}
+
+function hasProductSchema(html) {
+  const scriptBlocks = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+  return scriptBlocks.some((match) => /"@type"\s*:\s*"(Product|Drug|MedicalEntity|MedicalArticle|WebPage)"/i.test(match[1]));
+}
+
+function looksLikeProductPage(html, extracted, sourceUrl = '') {
+  const plainText = stripHtml(html).toLowerCase();
+  const title = String(html.match(/<title>([^<]+)<\/title>/i)?.[1] || '').toLowerCase();
+  const lowerUrl = String(sourceUrl).toLowerCase();
+
+  const productFields = [extracted.dci, extracted.laboratory, extracted.form, extracted.dosage]
+    .filter((value) => value && value !== 'À préciser');
+  const hasProductMetadata = productFields.length >= 2;
+  const hasStructuredProductData = hasProductSchema(html);
+  const hasProductSignals = /(dci|laboratoire|laboratory|fabricant|manufacturer|forme|dosage|substance active|principe actif|composition|présentation|médicament|medicament|produit|product)/i.test(plainText);
+  const looksLikeArticle = /(article|actualité|actualite|blog|news|communiqu|communiqué)/i.test(`${extracted.name || title}`.toLowerCase())
+    || /(\/article\/|\/blog\/|\/news\/|\/actualite\/|\/actus?\/)/i.test(lowerUrl);
+  const isCureMaProductPage = /https?:\/\/(?:www\.)?cure\.ma\/medicaments\/(?!classe\/)/i.test(sourceUrl);
+
+  return !looksLikeArticle && (hasStructuredProductData || hasProductMetadata || (isCureMaProductPage && hasProductSignals));
 }
 
 export async function importProductFromUrl({
@@ -241,7 +296,11 @@ export async function importProductFromUrl({
 
   const extracted = extractProductDataFromHtml(html, sourceUrl);
 
-  if (!looksLikeProductPage(html, extracted)) {
+  if (looksLikeInvalidProductExtraction(extracted)) {
+    return { imported: false, reason: 'not-a-product-page', product: null };
+  }
+
+  if (!looksLikeProductPage(html, extracted, sourceUrl)) {
     return { imported: false, reason: 'not-a-product-page', product: null };
   }
 

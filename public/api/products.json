@@ -23,248 +23,6 @@
   },
   {
     "id": 1001,
-    "name": "AMOXICILLINE 500MG",
-    "dci": "Amoxicilline",
-    "laboratory": "Cooper Pharma",
-    "form": "Capsule",
-    "dosage": "500 mg",
-    "therapeuticClass": "Antibiotique",
-    "categories": [
-      "antibiotic"
-    ],
-    "ppm": 21.5,
-    "description": "Produit de base ajouté par le synchroniseur AMOXICILLINE 500MG.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1002,
-    "name": "AZITHROMYCINE 500MG",
-    "dci": "Azithromycine",
-    "laboratory": "Maphar",
-    "form": "Comprimé",
-    "dosage": "500 mg",
-    "therapeuticClass": "Macrolide",
-    "categories": [
-      "antibiotic"
-    ],
-    "ppm": 59,
-    "description": "Produit de base ajouté par le synchroniseur AZITHROMYCINE 500MG.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1003,
-    "name": "CETIRIZINE 10MG",
-    "dci": "Cétirizine",
-    "laboratory": "Cooper Pharma",
-    "form": "Comprimé",
-    "dosage": "10 mg",
-    "therapeuticClass": "Antihistaminique",
-    "categories": [
-      "respiratory"
-    ],
-    "ppm": 27.5,
-    "description": "Produit de base ajouté par le synchroniseur CETIRIZINE 10MG.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1004,
-    "name": "LORATADINE 10MG",
-    "dci": "Loratadine",
-    "laboratory": "Sanofi Maroc",
-    "form": "Comprimé",
-    "dosage": "10 mg",
-    "therapeuticClass": "Antihistaminique",
-    "categories": [
-      "respiratory"
-    ],
-    "ppm": 24.5,
-    "description": "Produit de base ajouté par le synchroniseur LORATADINE 10MG.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1005,
-    "name": "METFORMINE 850MG",
-    "dci": "Metformine",
-    "laboratory": "Merck Maroc",
-    "form": "Comprimé",
-    "dosage": "850 mg",
-    "therapeuticClass": "Antidiabétique",
-    "categories": [
-      "cardiovascular"
-    ],
-    "ppm": 46,
-    "description": "Produit de base ajouté par le synchroniseur METFORMINE 850MG.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1006,
-    "name": "ATORVASTATINE 20MG",
-    "dci": "Atorvastatine",
-    "laboratory": "Pfizer Maroc",
-    "form": "Comprimé",
-    "dosage": "20 mg",
-    "therapeuticClass": "Hypolipémiant",
-    "categories": [
-      "cardiovascular"
-    ],
-    "ppm": 84,
-    "description": "Produit de base ajouté par le synchroniseur ATORVASTATINE 20MG.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1007,
-    "name": "VITAMINE C 500MG",
-    "dci": "Vitamine C",
-    "laboratory": "Cooper Pharma",
-    "form": "Comprimé effervescent",
-    "dosage": "500 mg",
-    "therapeuticClass": "Vitamine",
-    "categories": [
-      "vitamins"
-    ],
-    "ppm": 31,
-    "description": "Produit de base ajouté par le synchroniseur VITAMINE C 500MG.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1008,
-    "name": "OMEPRAZOLE 20MG",
-    "dci": "Oméprazole",
-    "laboratory": "Cooper Pharma",
-    "form": "Gélule",
-    "dosage": "20 mg",
-    "therapeuticClass": "IPP",
-    "categories": [
-      "digestive"
-    ],
-    "ppm": 29,
-    "description": "Produit de base ajouté par le synchroniseur OMEPRAZOLE 20MG.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1009,
-    "name": "PREDNISOLONE 20MG",
-    "dci": "Prednisolone",
-    "laboratory": "Cooper Pharma",
-    "form": "Comprimé",
-    "dosage": "20 mg",
-    "therapeuticClass": "Corticostéroïde",
-    "categories": [
-      "dermatology"
-    ],
-    "ppm": 19,
-    "description": "Produit de base ajouté par le synchroniseur PREDNISOLONE 20MG.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1010,
-    "name": "BETA-DINE 10%",
-    "dci": "Povidone iodée",
-    "laboratory": "Mundi Pharma",
-    "form": "Solution",
-    "dosage": "10%",
-    "therapeuticClass": "Antiseptique",
-    "categories": [
-      "dermatology"
-    ],
-    "ppm": 22,
-    "description": "Produit de base ajouté par le synchroniseur BETA-DINE 10%.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1011,
-    "name": "SERINGUE 5ML",
-    "dci": "Seringue",
-    "laboratory": "Cooper Dismedic",
-    "form": "Dispositif médical",
-    "dosage": "5 ml",
-    "therapeuticClass": "Matériel médical",
-    "categories": [
-      "dermatology"
-    ],
-    "ppm": 3.5,
-    "description": "Produit de base ajouté par le synchroniseur SERINGUE 5ML.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1001,
     "name": "PARACETAMOL 500MG",
     "dci": "PARACETAMOL 500mg",
     "laboratory": "COP PHARMA",
@@ -274,7 +32,7 @@
     "categories": [
       "analgesic"
     ],
-    "description": "Produit de base issu du catalogue local ANTALGIQUES.",
+    "description": "Produit de base issu du catalogue local, boîte de 20 comprimés.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -296,7 +54,7 @@
     "categories": [
       "analgesic"
     ],
-    "description": "Produit de base issu du catalogue local ANTIINFLAMMATOIRES.",
+    "description": "Produit de base issu du catalogue local, boîte de 30 comprimés.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -318,7 +76,7 @@
     "categories": [
       "antibiotic"
     ],
-    "description": "Produit de base issu du catalogue local ANTIBIOTIQUES.",
+    "description": "Produit de base issu du catalogue local, boîte de 14 comprimés.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -340,7 +98,7 @@
     "categories": [
       "vitamins"
     ],
-    "description": "Produit de base issu du catalogue local VITAMINES.",
+    "description": "Produit de base issu du catalogue local, tube de 20 comprimés.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -362,7 +120,7 @@
     "categories": [
       "digestive"
     ],
-    "description": "Produit de base issu du catalogue local ANTULCEREUX.",
+    "description": "Produit de base issu du catalogue local, boîte de 28 gélules.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -384,7 +142,7 @@
     "categories": [
       "cardiovascular"
     ],
-    "description": "Produit de base issu du catalogue local ANTIDIABETIQUES.",
+    "description": "Produit de base issu du catalogue local, boîte de 30 comprimés.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -406,7 +164,7 @@
     "categories": [
       "cardiovascular"
     ],
-    "description": "Produit de base issu du catalogue local ANTIHYPERTENSEURS.",
+    "description": "Produit de base issu du catalogue local, boîte de 30 comprimés.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -428,7 +186,7 @@
     "categories": [
       "dermatology"
     ],
-    "description": "Produit de base issu du catalogue local MATERIEL MEDICAL.",
+    "description": "Produit de base issu du catalogue local, boîte de 100 unités.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -450,7 +208,7 @@
     "categories": [
       "dermatology"
     ],
-    "description": "Produit de base issu du catalogue local CONSOMMABLES.",
+    "description": "Produit de base issu du catalogue local, rouleau individuel.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -472,7 +230,7 @@
     "categories": [
       "digestive"
     ],
-    "description": "Produit de base issu du catalogue local ANTIHISTAMINIQUES.",
+    "description": "Produit de base issu du catalogue local, boîte de 7 comprimés.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -494,7 +252,7 @@
     "categories": [
       "cardiovascular"
     ],
-    "description": "Produit de base issu du catalogue local ANTIDIABETIQUES.",
+    "description": "Produit de base issu du catalogue local, cartouche de 3ml.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -516,7 +274,7 @@
     "categories": [
       "dermatology"
     ],
-    "description": "Produit de base issu du catalogue local PROTECTION.",
+    "description": "Produit de base issu du catalogue local, boîte de 50 masques.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -528,236 +286,17 @@
     "relatedIds": []
   },
   {
-    "id": 1101,
-    "name": "AMLODIPINE 5MG",
-    "dci": "AMLODIPINE 5mg",
-    "laboratory": "COP PHARMA",
-    "form": "COMPRIME",
-    "dosage": "5mg",
-    "therapeuticClass": "ANTIHYPERTENSEURS",
-    "categories": [
-      "cardiovascular"
-    ],
-    "description": "Antihypertenseur de la classe des inhibiteurs calciques.",
-    "indications": "Hypertension artérielle.",
-    "posology": "1 comprimé par jour.",
-    "contraindications": "Hypersensibilité.",
-    "sideEffects": "Maux de tête, oedème périphérique.",
-    "conservation": "À l'abri de l'humidité.",
-    "pregnancyCategory": "C",
-    "isPrescriptionRequired": true,
-    "ppm": 110,
-    "relatedIds": [
-      1007
-    ]
-  },
-  {
-    "id": 1102,
-    "name": "ENALAPRIL 10MG",
-    "dci": "ENALAPRIL 10mg",
-    "laboratory": "COP PHARMA",
-    "form": "COMPRIME",
-    "dosage": "10mg",
-    "therapeuticClass": "ANTIHYPERTENSEURS",
-    "categories": [
-      "cardiovascular"
-    ],
-    "description": "Inhibiteur de l'enzyme de conversion utilisé en hypertension.",
-    "indications": "Hypertension artérielle, insuffisance cardiaque.",
-    "posology": "1 comprimé par jour.",
-    "contraindications": "Grossesse, antécédent d'angio-œdème.",
-    "sideEffects": "Toux, hypotension.",
-    "conservation": "Conserver à température ambiante.",
-    "pregnancyCategory": "D",
-    "isPrescriptionRequired": true,
-    "ppm": 95,
-    "relatedIds": [
-      1007
-    ]
-  },
-  {
-    "id": 1103,
-    "name": "CAPTOPRIL 25MG",
-    "dci": "CAPTOPRIL 25mg",
-    "laboratory": "COP PHARMA",
-    "form": "COMPRIME",
-    "dosage": "25mg",
-    "therapeuticClass": "ANTIHYPERTENSEURS",
-    "categories": [
-      "cardiovascular"
-    ],
-    "description": "Inhibiteur de l'enzyme de conversion, antihypertenseur.",
-    "indications": "Hypertension artérielle.",
-    "posology": "1 comprimé 2 fois par jour.",
-    "contraindications": "Grossesse.",
-    "sideEffects": "Vertiges, hypotension.",
-    "conservation": "À l'abri de la lumière.",
-    "pregnancyCategory": "D",
-    "isPrescriptionRequired": true,
-    "ppm": 88,
-    "relatedIds": [
-      1007
-    ]
-  },
-  {
-    "id": 1104,
-    "name": "VALSARTAN 80MG",
-    "dci": "VALSARTAN 80mg",
-    "laboratory": "COP PHARMA",
-    "form": "COMPRIME",
-    "dosage": "80mg",
-    "therapeuticClass": "ANTIHYPERTENSEURS",
-    "categories": [
-      "cardiovascular"
-    ],
-    "description": "Antagoniste des récepteurs de l'angiotensine II.",
-    "indications": "Hypertension artérielle.",
-    "posology": "1 comprimé par jour.",
-    "contraindications": "Grossesse.",
-    "sideEffects": "Hypotension, vertiges.",
-    "conservation": "Conserver au sec.",
-    "pregnancyCategory": "D",
-    "isPrescriptionRequired": true,
-    "ppm": 130,
-    "relatedIds": [
-      1007
-    ]
-  },
-  {
-    "id": 1105,
-    "name": "RAMIPRIL 5MG",
-    "dci": "RAMIPRIL 5mg",
-    "laboratory": "COP PHARMA",
-    "form": "COMPRIME",
-    "dosage": "5mg",
-    "therapeuticClass": "ANTIHYPERTENSEURS",
-    "categories": [
-      "cardiovascular"
-    ],
-    "description": "Inhibiteur de l'enzyme de conversion, utilisé en hypertension.",
-    "indications": "Hypertension artérielle.",
-    "posology": "1 comprimé par jour.",
-    "contraindications": "Grossesse.",
-    "sideEffects": "Toux, hypotension.",
-    "conservation": "Conserver à température ambiante.",
-    "pregnancyCategory": "D",
-    "isPrescriptionRequired": true,
-    "ppm": 99,
-    "relatedIds": [
-      1007
-    ]
-  },
-  {
-    "id": 1106,
-    "name": "HYDROCHLOROTHIAZIDE 25MG",
-    "dci": "HYDROCHLOROTHIAZIDE 25mg",
-    "laboratory": "COP PHARMA",
-    "form": "COMPRIME",
-    "dosage": "25mg",
-    "therapeuticClass": "ANTIHYPERTENSEURS",
-    "categories": [
-      "cardiovascular"
-    ],
-    "description": "Diurétique thiazidique utilisé en première ligne pour l'hypertension.",
-    "indications": "Hypertension artérielle.",
-    "posology": "1 comprimé par jour le matin.",
-    "contraindications": "Insuffisance rénale sévère.",
-    "sideEffects": "Hypokaliémie, soif.",
-    "conservation": "Conserver au sec.",
-    "pregnancyCategory": "C",
-    "isPrescriptionRequired": true,
-    "ppm": 60,
-    "relatedIds": [
-      1007
-    ]
-  },
-  {
     "id": 1,
-    "name": "PARACÉTAMOL 1000MG",
-    "dci": "Paracétamol",
-    "laboratory": "Cooper Pharma",
-    "form": "Comprimé",
-    "dosage": "1000 mg",
-    "therapeuticClass": "Analgésique – Antipyrétique",
-    "categories": [
-      "analgesic"
-    ],
-    "description": "Antalgique et antipyrétique d'action centrale, utilisé pour la fièvre et les douleurs légères à modérées.",
-    "indications": "Douleurs légères à modérées, céphalées, fièvre.",
-    "posology": "1 comprimé toutes les 4 à 6 heures, selon besoin.",
-    "contraindications": "Hypersensibilité au paracétamol, insuffisance hépatique sévère.",
-    "sideEffects": "Rares réactions cutanées, troubles digestifs.",
-    "conservation": "Conserver à température ambiante, à l'abri de l'humidité.",
-    "pregnancyCategory": "B",
-    "isPrescriptionRequired": false,
-    "ppm": 12.5,
-    "relatedIds": [
-      2,
-      3
-    ]
-  },
-  {
-    "id": 2,
-    "name": "IBUPROFÈNE 400MG",
-    "dci": "Ibuprofène",
-    "laboratory": "Sanofi Maroc",
-    "form": "Comprimé",
-    "dosage": "400 mg",
-    "therapeuticClass": "Anti-inflammatoire non stéroïdien (AINS)",
-    "categories": [
-      "analgesic"
-    ],
-    "description": "AINS utilisé pour traiter les douleurs et l'inflammation avec une action rapide.",
-    "indications": "Douleurs rhumatismales, céphalées, douleurs dentaires, fièvre.",
-    "posology": "1 comprimé 3 fois par jour au cours des repas.",
-    "contraindications": "Ulcère évolutif, insuffisance rénale grave.",
-    "sideEffects": "Nausées, douleurs abdominales, vertiges.",
-    "conservation": "Conserver au frais et à l'abri de l'humidité.",
-    "pregnancyCategory": "C",
-    "isPrescriptionRequired": false,
-    "ppm": 22,
-    "relatedIds": [
-      1,
-      3
-    ]
-  },
-  {
-    "id": 4,
-    "name": "OMÉPRAZOLE 20MG",
-    "dci": "Oméprazole",
-    "laboratory": "Cooper Pharma",
-    "form": "Gélule",
-    "dosage": "20 mg",
-    "therapeuticClass": "Inhibiteur de la pompe à protons",
-    "categories": [
-      "digestive"
-    ],
-    "description": "Traitement de référence du reflux gastro-œsophagien et des ulcères gastriques.",
-    "indications": "RGO, ulcère gastro-duodénal, prévention d'ulcère sous AINS.",
-    "posology": "1 gélule par jour avant le petit-déjeuner.",
-    "contraindications": "Hypersensibilité aux IPP, interaction avec certains antiviraux.",
-    "sideEffects": "Céphalées, nausées, diarrhée légère.",
-    "conservation": "À l'abri de l'humidité et de la chaleur.",
-    "pregnancyCategory": "C",
-    "isPrescriptionRequired": false,
-    "ppm": 30,
-    "relatedIds": [
-      1,
-      3
-    ]
-  },
-  {
-    "id": 17,
-    "name": "LE TRAITEMENT PAR MÉTHOTREXATE ALTÈRE LES FONCTIONS COGNITIVES SUR LE LONG TERME",
-    "dci": "À préciser",
-    "laboratory": "À préciser",
-    "form": "À préciser",
-    "dosage": "réponse entre les",
+    "name": "NORMIX 200 MG, COMPRIMÉ PELLICULÉ",
+    "dci": "Rifaximine",
+    "laboratory": "SYNTHEMEDIC",
+    "form": "Comprimé pelliculé",
+    "dosage": "Comprimé pelliculé",
     "therapeuticClass": "Produit importé automatiquement",
     "categories": [
       "digestive"
     ],
-    "description": "Produit importé automatiquement depuis https://medicament.ma/le-traitement-par-methotrexate-altere-les-fonctions-cognitives-sur-le-long-terme/.",
+    "description": "Produit importé automatiquement depuis https://www.cure.ma/medicaments/normix-200-mg-comprime-pellicule.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -768,105 +307,59 @@
     "relatedIds": []
   },
   {
-    "id": 1112,
-    "name": "SILDÉNAFIL 50MG",
-    "dci": "SILDÉNAFIL 50mg",
-    "laboratory": "COP PHARMA",
-    "form": "COMPRIMÉ",
-    "dosage": "50mg",
-    "therapeuticClass": "INHIBITEURS DE LA PDE5",
+    "id": 1013,
+    "name": "PARANTAL C 1000, COMPRIMÉ EFFERVESCENT",
+    "dci": "Paracetamol | Acide Ascorbique",
+    "laboratory": "LAPROPHAN",
+    "form": "Comprimé effervescent",
+    "dosage": "Comprimé effervescent",
+    "therapeuticClass": "Produit importé automatiquement",
     "categories": [
-      "cardiovascular"
+      "vitamins"
     ],
-    "description": "Produit de référence à base de sildénafil pour le traitement de la dysfonction érectile.",
-    "indications": "Dysfonction érectile, hypertension artérielle pulmonaire.",
-    "posology": "1 comprimé par jour selon prescription.",
-    "contraindications": "Hypersensibilité au sildénafil, nitrites.",
-    "sideEffects": "Céphalées, rougeurs, troubles digestifs.",
-    "conservation": "Conserver au sec, à l'abri de la lumière.",
+    "description": "Produit importé automatiquement depuis https://www.cure.ma/medicaments/parantal-c-1000-comprime-effervescent.",
+    "indications": "À compléter",
+    "posology": "À compléter",
+    "contraindications": "À compléter",
+    "sideEffects": "À compléter",
+    "conservation": "À compléter",
     "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": true,
-    "ppm": 220,
+    "isPrescriptionRequired": false,
     "relatedIds": []
   },
   {
-    "id": 1113,
-    "name": "TADALAFIL 20MG",
-    "dci": "TADALAFIL 20mg",
-    "laboratory": "COP PHARMA",
-    "form": "COMPRIMÉ",
-    "dosage": "20mg",
-    "therapeuticClass": "INHIBITEURS DE LA PDE5",
+    "id": 1014,
+    "name": "PARACETAMOL B. BRAUN 10 MG, SOLUTION POUR PERFUSION",
+    "dci": "Paracétamol",
+    "laboratory": "PHI",
+    "form": "Solution pour perfusion",
+    "dosage": "Solution pour perfusion",
+    "therapeuticClass": "Produit importé automatiquement",
     "categories": [
-      "cardiovascular"
+      "analgesic"
     ],
-    "description": "Inhibiteur de la PDE5 utilisé pour la dysfonction érectile et l'hypertension artérielle pulmonaire.",
-    "indications": "Dysfonction érectile, hypertension artérielle pulmonaire.",
-    "posology": "1 comprimé par jour selon prescription.",
-    "contraindications": "Hypersensibilité au tadalafil, interactions nitrates.",
-    "sideEffects": "Maux de tête, congestions nasales.",
-    "conservation": "Conserver au sec.",
+    "description": "Produit importé automatiquement depuis https://www.cure.ma/medicaments/paracetamol-b-braun-10-mg-solution-pour-perfusion.",
+    "indications": "À compléter",
+    "posology": "À compléter",
+    "contraindications": "À compléter",
+    "sideEffects": "À compléter",
+    "conservation": "À compléter",
     "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": true,
-    "ppm": 230,
+    "isPrescriptionRequired": false,
     "relatedIds": []
   },
   {
-    "id": 1114,
-    "name": "VARDÉNAFIL 10MG",
-    "dci": "VARDÉNAFIL 10mg",
-    "laboratory": "COP PHARMA",
-    "form": "COMPRIMÉ",
-    "dosage": "10mg",
-    "therapeuticClass": "INHIBITEURS DE LA PDE5",
-    "categories": [
-      "cardiovascular"
-    ],
-    "description": "Inhibiteur de la PDE5 utilisé pour le traitement de la dysfonction érectile.",
-    "indications": "Dysfonction érectile.",
-    "posology": "1 comprimé au moment du besoin.",
-    "contraindications": "Grossesse, nitrites.",
-    "sideEffects": "Céphalées, bouffées de chaleur.",
-    "conservation": "À l'abri de l'humidité.",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": true,
-    "ppm": 210,
-    "relatedIds": []
-  },
-  {
-    "id": 1115,
-    "name": "AVANAFIL 100MG",
-    "dci": "AVANAFIL 100mg",
-    "laboratory": "COP PHARMA",
-    "form": "COMPRIMÉ",
-    "dosage": "100mg",
-    "therapeuticClass": "INHIBITEURS DE LA PDE5",
-    "categories": [
-      "cardiovascular"
-    ],
-    "description": "Inhibiteur de la PDE5 utilisé pour la dysfonction érectile.",
-    "indications": "Dysfonction érectile.",
-    "posology": "1 comprimé avant le rapport sexuel.",
-    "contraindications": "Grossesse, nitrites.",
-    "sideEffects": "Maux de tête, étourdissements.",
-    "conservation": "Conserver au sec.",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": true,
-    "ppm": 240,
-    "relatedIds": []
-  },
-  {
-    "id": 1116,
-    "name": "EN 2050, L’ANTIBIORESISTANCE FERA UN MORT TOUTES LES 3 SECONDES",
-    "dci": "À préciser",
-    "laboratory": "À préciser",
-    "form": "À préciser",
-    "dosage": "À préciser",
+    "id": 1015,
+    "name": "AMOXIL 500 MG, COMPRIMÉ DISPERSIBLE",
+    "dci": "Amoxicilline",
+    "laboratory": "GLAXO SMITHKLINE",
+    "form": "Comprimé dispersible",
+    "dosage": "Comprimé dispersible",
     "therapeuticClass": "Produit importé automatiquement",
     "categories": [
       "antibiotic"
     ],
-    "description": "Produit importé automatiquement depuis https://medicament.ma/en-2050-lantibioresistance-fera-un-mort-toutes-les-3-secondes/.",
+    "description": "Produit importé automatiquement depuis https://www.cure.ma/medicaments/amoxil-500-mg-comprime-dispersible.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -877,17 +370,17 @@
     "relatedIds": []
   },
   {
-    "id": 1117,
-    "name": "NOVARTIS SCINDE SA DIVISION PHARMACEUTICALS EN DEUX",
-    "dci": "À préciser",
-    "laboratory": "À préciser",
-    "form": "À préciser",
-    "dosage": "À préciser",
+    "id": 1016,
+    "name": "AVELOX 400 MG IV, SOLUTÉ INJECTABLE",
+    "dci": "Moxifloxacine",
+    "laboratory": "BAYER S. A",
+    "form": "Soluté injectable",
+    "dosage": "Soluté injectable",
     "therapeuticClass": "Produit importé automatiquement",
     "categories": [
       "digestive"
     ],
-    "description": "Produit importé automatiquement depuis https://medicament.ma/novartis-scinde-sa-division-pharmaceuticals-en-deux/.",
+    "description": "Produit importé automatiquement depuis https://www.cure.ma/medicaments/avelox-400-mg-iv-solute-injectable.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",
@@ -898,59 +391,17 @@
     "relatedIds": []
   },
   {
-    "id": 1118,
-    "name": "ANTIDÉPRESSEURS ET GROSSESSE: L&RSQUO; ANSM APPELLE À LA PRUDENCE",
-    "dci": "À préciser",
-    "laboratory": "À préciser",
-    "form": "À préciser",
-    "dosage": "À préciser",
+    "id": 1017,
+    "name": "FLAGYL 250 MG, COMPRIMÉ",
+    "dci": "Métronidazole",
+    "laboratory": "MAPHAR",
+    "form": "Comprimé",
+    "dosage": "Comprimé",
     "therapeuticClass": "Produit importé automatiquement",
     "categories": [
       "digestive"
     ],
-    "description": "Produit importé automatiquement depuis https://medicament.ma/antidepresseurs-et-grossesse-lansm-appelle-a-la-prudence/.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1119,
-    "name": "AVIS FAVORABLE POUR SIX NOUVEAUX MÉDICAMENTS",
-    "dci": "À préciser",
-    "laboratory": "À préciser",
-    "form": "À préciser",
-    "dosage": "À préciser",
-    "therapeuticClass": "Produit importé automatiquement",
-    "categories": [
-      "digestive"
-    ],
-    "description": "Produit importé automatiquement depuis https://medicament.ma/avis-favorable-pour-six-nouveaux-medicaments/.",
-    "indications": "À compléter",
-    "posology": "À compléter",
-    "contraindications": "À compléter",
-    "sideEffects": "À compléter",
-    "conservation": "À compléter",
-    "pregnancyCategory": "N/A",
-    "isPrescriptionRequired": false,
-    "relatedIds": []
-  },
-  {
-    "id": 1120,
-    "name": "LE SILDÉNAFIL EN PATCH SERAIT PLUS EFFICACE",
-    "dci": "À préciser",
-    "laboratory": "À préciser",
-    "form": "À préciser",
-    "dosage": "À préciser",
-    "therapeuticClass": "Produit importé automatiquement",
-    "categories": [
-      "digestive"
-    ],
-    "description": "Produit importé automatiquement depuis https://medicament.ma/le-sildenafil-en-patch-serait-plus-efficace/.",
+    "description": "Produit importé automatiquement depuis https://www.cure.ma/medicaments/flagyl-250-mg-comprime.",
     "indications": "À compléter",
     "posology": "À compléter",
     "contraindications": "À compléter",

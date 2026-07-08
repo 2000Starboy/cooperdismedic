@@ -16,3 +16,13 @@ export async function loadProductsFromApi(): Promise<Product[]> {
 
   return fallbackProducts;
 }
+
+export async function loadCatalogProducts(): Promise<Product[]> {
+  const products = await loadProductsFromApi();
+  const seenKeys = new Set(products.map((product) => `${product.name}::${product.dci}`));
+  const merged = [
+    ...products,
+    ...fallbackProducts.filter((product) => !seenKeys.has(`${product.name}::${product.dci}`)),
+  ];
+  return merged;
+}

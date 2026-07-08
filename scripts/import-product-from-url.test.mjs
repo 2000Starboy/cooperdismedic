@@ -60,25 +60,25 @@ test('extracts product URLs from sitemap XML', () => {
     <?xml version="1.0" encoding="UTF-8"?>
     <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <sitemap>
-        <loc>https://medicament.ma/sitemap-products.xml</loc>
+        <loc>https://www.cure.ma/sitemap.xml</loc>
       </sitemap>
     </sitemapindex>
   `;
 
   const result = extractProductUrlsFromSitemapXml(xml);
-  assert.deepEqual(result, ['https://medicament.ma/sitemap-products.xml']);
+  assert.deepEqual(result, ['https://www.cure.ma/sitemap.xml']);
 });
 
 test('ignores article URLs from the marocain site when extracting product URLs', () => {
   const xml = `
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      <url><loc>https://medicament.ma/en-2050-lantibioresistance-fera-un-mort-toutes-les-3-secondes/</loc></url>
-      <url><loc>https://medicament.ma/produit/paracetamol-1000mg/</loc></url>
+      <url><loc>https://www.cure.ma/actualites/en-2050-lantibioresistance-fera-un-mort-toutes-les-3-secondes/</loc></url>
+      <url><loc>https://www.cure.ma/medicaments/paracetamol-1000mg/</loc></url>
     </urlset>
   `;
 
   const result = extractProductUrlsFromSitemapXml(xml);
-  assert.deepEqual(result, ['https://medicament.ma/produit/paracetamol-1000mg/']);
+  assert.deepEqual(result, ['https://www.cure.ma/medicaments/paracetamol-1000mg/']);
 });
 
 test('treats 404-like pages as invalid without throwing', async () => {

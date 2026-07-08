@@ -10,15 +10,27 @@ const sourcesPath = path.join(projectRoot, 'src', 'data', 'market-products.sourc
 const pendingPath = path.join(projectRoot, 'src', 'data', 'pending-products.json');
 const seedPath = path.join(projectRoot, 'src', 'data', 'market-products.seed.json');
 
-function fetchUrl(url) {
+function fetchUrl(url, redirectCount = 5) {
   return new Promise((resolve, reject) => {
     let data = '';
     const req = https.get(url, { timeout: 8000 }, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        if (redirectCount <= 0) {
+          reject(new Error(`Too many redirects for ${url}`));
+          res.resume();
+          return;
+        }
+        const nextUrl = new URL(res.headers.location, url).href;
+        res.resume();
+        return resolve(fetchUrl(nextUrl, redirectCount - 1));
+      }
+
       if (res.statusCode < 200 || res.statusCode >= 400) {
         reject(new Error(`Failed to fetch ${url}: ${res.statusCode}`));
         res.resume();
         return;
       }
+
       res.setEncoding('utf8');
       res.on('data', (chunk) => (data += chunk));
       res.on('end', () => resolve(data));
@@ -48,10 +60,11 @@ function isProductUrl(url) {
 
   const pathname = parsed.pathname.toLowerCase();
   const segments = pathname.split('/').filter(Boolean);
+  const isCureMedicamentsPage = /(^|\.)cure\.ma$/i.test(parsed.hostname) && pathname.startsWith('/medicaments/') && pathname !== '/medicaments' && !pathname.startsWith('/medicaments/classe/');
   const hasProductPathSegment = segments.some((segment) => /(medicament|medicaments|produit|produits|product|products|specialite|specialites|drug|drugs|pharmacie|pharmacies|comprime|capsule|sirop|gelule|poudre|creme|solution|spray|suppositoire|injectable)/i.test(segment));
   const hasKnownMedicineToken = /(paracetamol|doliprane|ibuprofene|amoxicilline|omeprazole|vitamine|aspirine|cetirizine|loratadine|metformine|atorvastatine|augmentin|voltfast|gaviscon|loperamide|fluimucil|biseptol|ceftriaxone|prednisolone|diclofenac|ketoconazole|betadine)/i.test(pathname);
 
-  return hasProductPathSegment || hasKnownMedicineToken;
+  return isCureMedicamentsPage || hasProductPathSegment || hasKnownMedicineToken;
 }
 
 export function extractProductUrlsFromSitemapXml(xml) {

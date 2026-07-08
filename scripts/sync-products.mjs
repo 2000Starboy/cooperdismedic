@@ -12,6 +12,52 @@ const mockProductsPath = path.join(projectRoot, 'src', 'data', 'mock', 'products
 const outputPath = path.join(projectRoot, 'public', 'api', 'products.json');
 const metadataPath = path.join(projectRoot, 'public', 'api', 'last-sync.json');
 
+function isPlaceholderValue(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  return normalized === '' || normalized === 'à préciser' || normalized === 'a preciser';
+}
+
+function isPlausibleProductField(value, type) {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (!normalized || normalized === 'à préciser' || normalized === 'a preciser') return false;
+
+  if (type === 'dosage') {
+    return /\d/.test(normalized) || /(mg|g|ml|µg|mcg|%|ui|unité|capsule|comprimé|gélule|spray|pommade|patch|solution|suppositoire|inject|ampoule)/i.test(normalized);
+  }
+
+  if (type === 'form') {
+    return /(comprimé|capsule|gélule|solution|sirop|sachet|patch|crème|gel|spray|dispositif|ampoule|injection|suppositoire|collyre|pommade|patch)/i.test(normalized) || normalized.length <= 40;
+  }
+
+  if (type === 'laboratory') {
+    return normalized.length >= 3 && !/^(article|actualité|actualite|blog|news|communiqu|communiqué)/i.test(normalized);
+  }
+
+  if (type === 'dci') {
+    return normalized.length >= 3 && !/^(article|actualité|actualite|blog|news|communiqu|communiqué)/i.test(normalized);
+  }
+
+  return normalized.length > 0;
+}
+
+function looksLikeImportedPlaceholderProduct(product) {
+  const therapeuticClass = String(product.therapeuticClass || '').toLowerCase();
+  const description = String(product.description || '').toLowerCase();
+  const importedSignal = therapeuticClass.includes('produit importé automatiquement') || description.includes('produit importé automatiquement');
+  if (!importedSignal) return false;
+
+  const plausibleFields = [
+    isPlausibleProductField(product.dci, 'dci'),
+    isPlausibleProductField(product.laboratory, 'laboratory'),
+    isPlausibleProductField(product.form, 'form'),
+    isPlausibleProductField(product.dosage, 'dosage'),
+  ].filter(Boolean).length;
+
+  const titleLooksLikeArticle = /^(le |la |les |l’|l'|article|actualité|actualite|blog|news|communiqué|communiqu)/i.test(String(product.name || '').trim());
+
+  return plausibleFields < 2 || titleLooksLikeArticle;
+}
+
 function normalizeProducts(products) {
   return products
     .filter(Boolean)
@@ -21,23 +67,67 @@ function normalizeProducts(products) {
       relatedIds: Array.isArray(product.relatedIds) ? product.relatedIds : [],
       ppm: typeof product.ppm === 'number' ? product.ppm : undefined,
     }))
-    .filter((product) => !(
-      product.therapeuticClass === 'Produit importé automatiquement' &&
-      product.dci === 'À préciser' &&
-      product.laboratory === 'À préciser' &&
-      product.form === 'À préciser' &&
-      product.dosage === 'À préciser'
-    ));
+    .filter((product) => !looksLikeImportedPlaceholderProduct(product));
+}
+
+function normalizeProductKey(product) {
+  const name = String(product.name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const dci = String(product.dci || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  return `${name}::${dci}`;
+}
+
+function isPlaceholderProduct(product) {
+  const therapeuticClass = String(product.therapeuticClass || '').toLowerCase();
+  const dci = String(product.dci || '').trim().toLowerCase();
+  return (
+    therapeuticClass.includes('produit import') ||
+    dci === 'à préciser' ||
+    dci === 'a preciser'
+  );
+}
+
+function isLocalCatalogueProduct(product) {
+  return String(product.description || '').toLowerCase().includes('catalogue local');
+}
+
+function preferProduct(existing, candidate) {
+  const existingLocal = isLocalCatalogueProduct(existing);
+  const candidateLocal = isLocalCatalogueProduct(candidate);
+  if (existingLocal !== candidateLocal) return candidateLocal;
+
+  const existingPlaceholder = isPlaceholderProduct(existing);
+  const candidatePlaceholder = isPlaceholderProduct(candidate);
+  if (existingPlaceholder !== candidatePlaceholder) return !candidatePlaceholder;
+
+  return false;
 }
 
 function dedupeProducts(products) {
-  const seen = new Set();
-  return products.filter((product) => {
-    const key = `${(product.name || '').toLowerCase()}::${(product.dci || '').toLowerCase()}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  const productsById = new Map();
+  const uniqueProducts = [];
+
+  for (const product of products) {
+    if (product.id != null) {
+      const existing = productsById.get(product.id);
+      if (!existing || preferProduct(existing, product)) {
+        productsById.set(product.id, product);
+      }
+      continue;
+    }
+    uniqueProducts.push(product);
+  }
+
+  const seenKeys = new Set();
+  const deduped = [];
+
+  for (const product of [...productsById.values(), ...uniqueProducts]) {
+    const key = normalizeProductKey(product);
+    if (seenKeys.has(key)) continue;
+    seenKeys.add(key);
+    deduped.push(product);
+  }
+
+  return deduped;
 }
 
 function inferCategoryFromFamily(family) {
@@ -48,6 +138,32 @@ function inferCategoryFromFamily(family) {
   if (/(vitamin|vitamines)/i.test(normalized)) return ['vitamins'];
   if (/(derm|pansement|consomm|materiel|protection)/i.test(normalized)) return ['dermatology'];
   return ['digestive'];
+}
+
+function formatLocalProductDescription(product) {
+  const family = String(product.Famille || '').trim();
+  const presentation = String(product.Presentation || '').trim();
+  const laboratory = String(product.Laboratoire || '').trim();
+  const form = String(product.Forme || '').trim();
+  const dosage = String(product.Dosage || '').trim();
+
+  if (presentation) {
+    return `Produit de base issu du catalogue local, ${presentation.toLowerCase()}.`;
+  }
+
+  if (form && dosage) {
+    return `${form} ${dosage} issu du catalogue local.`;
+  }
+
+  if (family) {
+    return `Produit de base issu du catalogue local ${family.toLowerCase()}.`;
+  }
+
+  if (laboratory) {
+    return `Produit de base issu du catalogue local ${laboratory}.`;
+  }
+
+  return 'Produit de base issu du catalogue local.';
 }
 
 const fallbackBaseProducts = [
@@ -94,7 +210,7 @@ async function loadBaseProducts() {
         dosage: String(product.Dosage || 'À préciser'),
         therapeuticClass: String(product.Famille || 'Produit de base'),
         categories: inferCategoryFromFamily(product.Famille),
-        description: `Produit de base issu du catalogue local ${String(product.Famille || 'local')}.`,
+        description: formatLocalProductDescription(product),
         indications: 'À compléter',
         posology: 'À compléter',
         contraindications: 'À compléter',
@@ -117,6 +233,7 @@ export async function syncProducts() {
   const seedProducts = normalizeProducts(Array.isArray(parsed) ? parsed : parsed.products ?? []);
   const baseProducts = await loadBaseProducts();
   let products = dedupeProducts([...baseProducts, ...seedProducts]);
+  const importedProducts = [];
 
   try {
     const sourceConfigRaw = await fs.readFile(sourceConfigPath, 'utf8');
@@ -138,6 +255,7 @@ export async function syncProducts() {
 
       if (result.imported) {
         products = [...products, result.product];
+        importedProducts.push({ ...result.product, sourceUrl });
       }
     }
   } catch {
@@ -147,12 +265,21 @@ export async function syncProducts() {
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   await fs.writeFile(outputPath, JSON.stringify(products, null, 2));
 
-  await fs.writeFile(
-    metadataPath,
-    JSON.stringify({ syncedAt: new Date().toISOString(), count: products.length }, null, 2)
-  );
+  const syncReport = {
+    syncedAt: new Date().toISOString(),
+    count: products.length,
+    importedCount: importedProducts.length,
+    importedProducts: importedProducts.map((product) => ({
+      id: product.id,
+      name: product.name,
+      dci: product.dci,
+      url: product.sourceUrl,
+    })),
+  };
 
-  return { count: products.length, outputPath, metadataPath };
+  await fs.writeFile(metadataPath, JSON.stringify(syncReport, null, 2));
+
+  return { ...syncReport, outputPath, metadataPath };
 }
 
 const isDirectRun = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;

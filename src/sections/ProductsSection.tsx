@@ -10,7 +10,7 @@ import { useTranslation, useIsRTL } from '@/lib/i18n';
 import { PRODUCTS as fallbackProducts } from '@/data/products-catalogue';
 import ProductModal from '@/components/ProductModal';
 import { Product } from '@/data/products-catalogue';
-import { loadProductsFromApi } from '@/lib/products-data';
+import { loadCatalogProducts } from '@/lib/products-data';
 
 const categoryIcons: Record<string, React.ElementType> = {
   cardiovascular: HeartPulse,
@@ -29,6 +29,35 @@ const categoryColors: Record<string, { bg: string, color: string }> = {
   dermatology: { bg: 'hsl(190,80%,40% / 0.08)', color: 'hsl(190,80%,40%)' },
   respiratory: { bg: 'hsl(280,60%,55% / 0.08)', color: 'hsl(280,60%,55%)' },
 };
+
+function isImportedPlaceholderProduct(product: Product) {
+  const therapeuticClass = String(product.therapeuticClass || '').toLowerCase();
+  const description = String(product.description || '').toLowerCase();
+  const importedSignal = therapeuticClass.includes('produit importé automatiquement') || description.includes('produit importé automatiquement');
+
+  const plausibleField = (value: string, type: 'dci' | 'laboratory' | 'form' | 'dosage') => {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized || normalized === 'à préciser' || normalized === 'a preciser') return false;
+    if (type === 'dosage') {
+      return /\d/.test(normalized) || /(mg|g|ml|µg|mcg|%|ui|unité|capsule|comprimé|gélule|spray|pommade|patch|solution|suppositoire|inject|ampoule)/i.test(normalized);
+    }
+    if (type === 'form') {
+      return /(comprimé|capsule|gélule|solution|sirop|sachet|patch|crème|gel|spray|dispositif|ampoule|injection|suppositoire|collyre|pommade|patch)/i.test(normalized) || normalized.length <= 40;
+    }
+    return normalized.length >= 3 && !/^(article|actualité|actualite|blog|news|communiqu|communiqué)/i.test(normalized);
+  };
+
+  const plausibleFields = [
+    plausibleField(product.dci, 'dci'),
+    plausibleField(product.laboratory, 'laboratory'),
+    plausibleField(product.form, 'form'),
+    plausibleField(product.dosage, 'dosage'),
+  ].filter(Boolean).length;
+
+  const titleLooksLikeArticle = /^(le |la |les |l’|l'|article|actualité|actualite|blog|news|communiqué|communiqu)/i.test(String(product.name || '').trim());
+
+  return importedSignal && (plausibleFields < 2 || titleLooksLikeArticle);
+}
 
 interface ProductsSectionProps {
   onProductClick: (product: Product) => void;
@@ -49,7 +78,7 @@ export default function ProductsSection({ onProductClick, onViewAll }: ProductsS
 
   useEffect(() => {
     let cancelled = false;
-    loadProductsFromApi().then((data) => {
+    loadCatalogProducts().then((data) => {
       if (!cancelled) setProducts(data);
     });
     return () => {
@@ -64,6 +93,7 @@ export default function ProductsSection({ onProductClick, onViewAll }: ProductsS
 
   const filteredProducts = useMemo(() => {
     return products
+      .filter(p => !isImportedPlaceholderProduct(p))
       .filter(p => activeCategory === 'all' || p.categories.includes(activeCategory as any))
       .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.description.toLowerCase().includes(searchQuery.toLowerCase()))
       .slice(0, 8); // Show top 8 on landing page
