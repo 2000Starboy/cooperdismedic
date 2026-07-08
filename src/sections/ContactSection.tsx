@@ -55,9 +55,9 @@ export default function ContactSection() {
   }, [isRTL]);
 
   const contactInfos = [
-    { icon: MapPin, title: 'Siège Social', content: 'Lotissement Bachkou, Polo, Casablanca', color: 'hsl(213,94%,45%)', bg: 'hsl(213,94%,45% / 0.08)' },
-    { icon: Phone, title: 'Téléphone', content: '+212 5 22 81 90 20', color: 'hsl(160,84%,39%)', bg: 'hsl(160,84%,39% / 0.08)' },
-    { icon: Mail, title: 'Email', content: 'contact@cooperdismedic.ma', color: 'hsl(250,70%,55%)', bg: 'hsl(250,70%,55% / 0.08)' },
+    { icon: MapPin, title: t('contact.infoSiege'), content: 'Lotissement Bachkou, Polo, Casablanca', color: 'hsl(213,94%,45%)', bg: 'hsl(213,94%,45% / 0.08)' },
+    { icon: Phone, title: t('contact.infoPhone'), content: '+212 5 22 81 90 20', color: 'hsl(160,84%,39%)', bg: 'hsl(160,84%,39% / 0.08)' },
+    { icon: Mail, title: t('contact.infoEmail'), content: 'contact@cooperdismedic.ma', color: 'hsl(250,70%,55%)', bg: 'hsl(250,70%,55% / 0.08)' },
   ];
 
   return (
@@ -115,22 +115,22 @@ export default function ContactSection() {
                 className="text-lg font-bold text-slate-900 dark:text-white"
                 style={{ fontFamily: 'Outfit, sans-serif' }}
               >
-                Envoyez-nous un message d'information
+              {t('contact.formTitle')}
               </h3>
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Nom complet</label>
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">{t('contact.fieldName')}</label>
                   <input 
                     required 
                     type="text" 
                     className="w-full px-4 py-2.5 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-slate-50 dark:bg-slate-950 transition-all text-slate-900 dark:text-white" 
                     style={{ borderColor: 'hsl(var(--cd-card-border))' }} 
-                    placeholder="Dr. Ahmed..." 
+                    placeholder={t('contact.namePlaceholder')} 
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Email</label>
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">{t('contact.fieldEmail')}</label>
                   <input 
                     required 
                     type="email" 
@@ -142,26 +142,26 @@ export default function ContactSection() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Sujet</label>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">{t('contact.fieldSubject')}</label>
                 <select 
                   className="w-full px-4 py-2.5 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-slate-50 dark:bg-slate-950 transition-all text-slate-900 dark:text-white" 
                   style={{ borderColor: 'hsl(var(--cd-card-border))' }}
                 >
-                  <option>Demande d'information produit</option>
-                  <option>Partenariat distribution</option>
-                  <option>Support pharmacien</option>
-                  <option>Autre</option>
+                  <option>{t('contact.subjectProduct')}</option>
+                  <option>{t('contact.subjectPartnership')}</option>
+                  <option>{t('contact.subjectSupport')}</option>
+                  <option>{t('contact.subjectOther')}</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Message</label>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">{t('contact.fieldMessage')}</label>
                 <textarea 
                   required 
                   rows={4} 
                   className="w-full px-4 py-2.5 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-slate-50 dark:bg-slate-950 transition-all resize-none text-slate-900 dark:text-white" 
                   style={{ borderColor: 'hsl(var(--cd-card-border))' }} 
-                  placeholder="Votre requête..." 
+                  placeholder={t('contact.messagePlaceholder')} 
                 />
               </div>
 
@@ -172,7 +172,7 @@ export default function ContactSection() {
               >
                 {formState === 'idle' && <><Send size={14} /> {t('contact.send')}</>}
                 {formState === 'loading' && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-                {formState === 'success' && 'Message Envoyé !'}
+                {formState === 'success' && t('contact.sent')}
               </button>
             </form>
           </div>
@@ -195,8 +195,8 @@ export default function ContactSection() {
                 <Globe size={18} />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-slate-900 dark:text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>Siège Social</h4>
-                <p className="text-xs text-slate-500 leading-relaxed mt-1">Lotissement Bachkou, Polo, Casablanca, Maroc</p>
+                <h4 className="font-bold text-sm text-slate-900 dark:text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>{t('contact.mapOverlayTitle')}</h4>
+                <p className="text-xs text-slate-500 leading-relaxed mt-1">{t('contact.mapOverlayAddress')}</p>
               </div>
             </div>
           </div>

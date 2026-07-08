@@ -6,10 +6,10 @@ import { ArrowRight, MapPin, Phone, Mail, Linkedin, Twitter, Facebook, Instagram
 import { useTranslation } from '@/lib/i18n';
 
 export default function FooterSection() {
-  const { t } = useTranslation();
+  const { t, tArray } = useTranslation();
 
-  const navLinks = ['Accueil', 'À propos', 'Nos Services', 'Équipe', 'Produits', 'Contact'];
-  const specialties = ['Cardiologie', 'Neurologie', 'Gastroentérologie', 'Infectiologie', 'Dermatologie', 'Respiratoire'];
+  const navLinks = tArray('footer.navLinks');
+  const specialties = tArray('footer.specialties');
   const socials = [Linkedin, Twitter, Facebook, Instagram];
 
   return (
@@ -32,17 +32,17 @@ export default function FooterSection() {
               className="text-2xl font-bold text-white mb-1"
               style={{ fontFamily: 'Outfit, sans-serif' }}
             >
-              Devenez partenaire de Cooper Dismedic
+              {t('footer.ctaTitle')}
             </h3>
             <p className="text-slate-400 text-sm">
-              Rejoignez notre réseau de distribution pharmaceutique national.
+              {t('footer.ctaSubtitle')}
             </p>
           </div>
           <a
             href="#contact"
             className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm border border-blue-500/40 text-blue-400 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all duration-300 group"
           >
-            Nous contacter
+            {t('footer.ctaButton')}
             <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
           </a>
         </div>
@@ -70,7 +70,7 @@ export default function FooterSection() {
               </span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed mb-8">
-              Membre du groupe Cooper Pharma. Leader de la distribution pharmaceutique et parapharmaceutique au Maroc depuis 1993.
+              {t('footer.brandTagline')}
             </p>
             <div className="flex gap-3">
               {socials.map((Icon, i) => (
@@ -92,7 +92,7 @@ export default function FooterSection() {
               className="text-white font-extrabold mb-6 text-xs uppercase tracking-widest"
               style={{ fontFamily: 'Outfit, sans-serif' }}
             >
-              Navigation
+              {t('footer.navTitle')}
             </h4>
             <ul className="flex flex-col gap-4">
               {navLinks.map((link) => (
@@ -118,7 +118,7 @@ export default function FooterSection() {
               className="text-white font-extrabold mb-6 text-xs uppercase tracking-widest"
               style={{ fontFamily: 'Outfit, sans-serif' }}
             >
-              Spécialités
+              {t('footer.specialtiesTitle')}
             </h4>
             <ul className="flex flex-col gap-4">
               {specialties.map((link) => (
@@ -141,7 +141,7 @@ export default function FooterSection() {
               className="text-white font-extrabold mb-6 text-xs uppercase tracking-widest"
               style={{ fontFamily: 'Outfit, sans-serif' }}
             >
-              Contact
+              {t('footer.contactTitle')}
             </h4>
             <ul className="flex flex-col gap-5">
               <li className="flex items-start gap-3 text-slate-400 text-sm">
@@ -168,12 +168,12 @@ export default function FooterSection() {
         {/* Bottom Strip */}
         <div className="flex flex-col md:flex-row items-center justify-between pt-8 gap-4">
           <p className="text-slate-500 text-xs text-center md:text-left">
-            © {new Date().getFullYear()} Cooper Dismedic — Tous droits réservés
+            © {new Date().getFullYear()} Cooper Dismedic — {t('footer.allRights').replace('© {year} Cooper Dismedic — ', '')}
           </p>
           <div className="flex items-center gap-6 text-slate-500 text-xs">
-            <a href="#" className="hover:text-white transition-colors">Mentions légales</a>
-            <a href="#" className="hover:text-white transition-colors">Confidentialité</a>
-            <a href="#" className="hover:text-white transition-colors">Cookies</a>
+            <a href="#" className="hover:text-white transition-colors">{t('footer.legalMentions')}</a>
+            <a href="#" className="hover:text-white transition-colors">{t('footer.confidentialite')}</a>
+            <a href="#" className="hover:text-white transition-colors">{t('footer.cookies')}</a>
           </div>
         </div>
 

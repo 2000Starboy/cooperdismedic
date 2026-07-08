@@ -2,9 +2,12 @@
 // ProductDetail.tsx — Premium Corporate Portal (Product Detail Page)
 // ============================================================================
 
+import { useEffect, useState } from 'react';
 import { ArrowLeft, Check, AlertCircle, FileText, ShoppingCart, Info, Archive } from 'lucide-react';
 import { Product } from '@/types';
 import { useTranslation, useIsRTL } from '@/lib/i18n';
+import { getRelatedProducts } from '@/data/products-catalogue';
+import { loadProductsFromApi } from '@/lib/products-data';
 
 interface ProductDetailProps {
   product: Product;
@@ -12,9 +15,27 @@ interface ProductDetailProps {
   onProductClick?: (product: Product) => void;
 }
 
-export default function ProductDetail({ product, onBack }: ProductDetailProps) {
+export default function ProductDetail({ product, onBack, onProductClick }: ProductDetailProps) {
   const { t, locale } = useTranslation();
   const isRTL = useIsRTL();
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>([product]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    loadProductsFromApi().then((products) => {
+      if (!cancelled) {
+        const merged = [product, ...products.filter((entry) => entry.id !== product.id)];
+        setCatalogProducts(merged);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product]);
+
+  const relatedProducts = getRelatedProducts(product, 4, catalogProducts);
 
   return (
     <div className="min-h-screen" style={{ background: 'hsl(var(--cd-bg))' }}>
@@ -119,6 +140,37 @@ export default function ProductDetail({ product, onBack }: ProductDetailProps) {
           </div>
         </div>
       </div>
+
+      {relatedProducts.length > 0 && (
+        <div className="container mx-auto px-6 lg:px-16 py-16">
+          <div className="mb-10 max-w-3xl">
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">{t('productPage.relatedTitle')}</h2>
+            <p className="text-sm text-slate-500 max-w-2xl">
+              {t('productPage.subtitle')}
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {relatedProducts.map((related) => (
+              <button
+                key={related.id}
+                onClick={() => onProductClick?.(related)}
+                className="group w-full text-left rounded-3xl border border-slate-200 bg-white p-6 transition-shadow hover:shadow-xl"
+              >
+                <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700 mb-4">
+                  {related.categories[0]}
+                </span>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">{related.name}</h3>
+                <p className="text-sm text-slate-500 mb-4">{related.laboratory}</p>
+                <div className="flex items-center justify-between gap-4 text-sm font-semibold text-slate-900">
+                  <span>{related.ppm ? `${related.ppm.toLocaleString(locale)} MAD` : 'Sur devis'}</span>
+                  <span className="text-blue-600 transition-colors group-hover:text-blue-800">Voir</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

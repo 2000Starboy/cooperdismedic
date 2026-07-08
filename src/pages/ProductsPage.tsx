@@ -2,11 +2,12 @@
 // ProductsPage.tsx — Premium Corporate Portal (Full Catalogue Page)
 // ============================================================================
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, Pill, Activity, ShieldPlus, ArrowRight, ArrowLeft, Eye, Bone, Stethoscope, Droplet, HeartPulse, Package } from 'lucide-react';
 import { useTranslation, useIsRTL } from '@/lib/i18n';
-import { PRODUCTS } from '@/data/products-catalogue';
+import { PRODUCTS as fallbackProducts } from '@/data/products-catalogue';
 import { Product } from '@/types';
+import { loadProductsFromApi } from '@/lib/products-data';
 
 const categoryIcons: Record<string, React.ElementType> = {
   Cardiologie: HeartPulse,
@@ -41,17 +42,28 @@ export default function ProductsPage({ onProductClick, onBack }: ProductsPagePro
   
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [products, setProducts] = useState<Product[]>(fallbackProducts);
 
-  const categories = useMemo(() => {
-    const cats = new Set(PRODUCTS.flatMap(p => p.categories));
-    return ['all', ...Array.from(cats)].sort();
+  useEffect(() => {
+    let cancelled = false;
+    loadProductsFromApi().then((data) => {
+      if (!cancelled) setProducts(data);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
+  const categories = useMemo(() => {
+    const cats = new Set(products.flatMap(p => p.categories));
+    return ['all', ...Array.from(cats)].sort();
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
-    return PRODUCTS
+    return products
       .filter(p => activeCategory === 'all' || p.categories.includes(activeCategory as any))
       .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.description.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, products]);
 
   return (
     <div className="min-h-screen" style={{ background: 'hsl(var(--cd-bg))' }}>

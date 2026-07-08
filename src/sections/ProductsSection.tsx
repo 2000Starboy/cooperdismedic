@@ -2,14 +2,15 @@
 // ProductsSection.tsx — Premium Medical Catalogue (Clinical Portal)
 // ============================================================================
 
-import { useState, useMemo, useRef, useLayoutEffect } from 'react';
+import { useState, useMemo, useRef, useLayoutEffect, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Pill, Activity, ShieldPlus, ArrowRight, Search, Stethoscope, Droplet, Eye, Bone, HeartPulse, Filter } from 'lucide-react';
 import { useTranslation, useIsRTL } from '@/lib/i18n';
-import { PRODUCTS } from '@/data/products-catalogue';
+import { PRODUCTS as fallbackProducts } from '@/data/products-catalogue';
 import ProductModal from '@/components/ProductModal';
 import { Product } from '@/data/products-catalogue';
+import { loadProductsFromApi } from '@/lib/products-data';
 
 const categoryIcons: Record<string, React.ElementType> = {
   cardiovascular: HeartPulse,
@@ -44,18 +45,29 @@ export default function ProductsSection({ onProductClick, onViewAll }: ProductsS
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>(fallbackProducts);
 
-  const categories = useMemo(() => {
-    const cats = new Set(PRODUCTS.flatMap(p => p.categories));
-    return ['all', ...Array.from(cats)].sort();
+  useEffect(() => {
+    let cancelled = false;
+    loadProductsFromApi().then((data) => {
+      if (!cancelled) setProducts(data);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
+  const categories = useMemo(() => {
+    const cats = new Set(products.flatMap(p => p.categories));
+    return ['all', ...Array.from(cats)].sort();
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
-    return PRODUCTS
+    return products
       .filter(p => activeCategory === 'all' || p.categories.includes(activeCategory as any))
       .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.description.toLowerCase().includes(searchQuery.toLowerCase()))
       .slice(0, 8); // Show top 8 on landing page
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, products]);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -130,7 +142,7 @@ export default function ProductsSection({ onProductClick, onViewAll }: ProductsS
                   color: activeCategory === 'all' ? 'white' : 'hsl(var(--cd-heading))',
                 }}
               >
-                Tous
+                {t('common.all')}
               </button>
               {categories.filter(c => c !== 'all').slice(0, 5).map(cat => (
                 <button
@@ -142,7 +154,7 @@ export default function ProductsSection({ onProductClick, onViewAll }: ProductsS
                     color: activeCategory === cat ? 'white' : 'hsl(var(--cd-heading))',
                   }}
                 >
-                  {cat}
+                  {t(`products.${cat}`, cat)}
                 </button>
               ))}
             </div>
@@ -186,7 +198,7 @@ export default function ProductsSection({ onProductClick, onViewAll }: ProductsS
                         <Icon size={18} />
                       </div>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: product.isPrescriptionRequired ? 'hsl(160,84%,95%)' : 'hsl(var(--cd-surface-2))', color: product.isPrescriptionRequired ? 'hsl(160,84%,39%)' : 'hsl(var(--cd-body-muted))' }}>
-                        {product.isPrescriptionRequired ? 'Prescription Req.' : 'Libre'}
+                        {product.isPrescriptionRequired ? t('common.prescriptionRequired') : t('common.otc')}
                       </span>
                     </div>
 
@@ -206,10 +218,10 @@ export default function ProductsSection({ onProductClick, onViewAll }: ProductsS
 
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800/50 mt-auto">
                     <span className="text-sm font-extrabold text-slate-900 dark:text-white">
-                      {product.ppm ? `${product.ppm.toLocaleString(locale)} MAD` : 'Sur devis'}
+                      {product.ppm ? `${product.ppm.toLocaleString(locale)} MAD` : t('common.quoteOnRequest')}
                     </span>
                     <div className="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-0.5 group-hover:underline">
-                      <span>Détails</span>
+                      <span>{t('common.details')}</span>
                       <ArrowRight size={12} className={`transition-transform group-hover:${isRTL ? '-translate-x-0.5' : 'translate-x-0.5'}`} />
                     </div>
                   </div>
@@ -221,7 +233,7 @@ export default function ProductsSection({ onProductClick, onViewAll }: ProductsS
 
           {filteredProducts.length === 0 && (
             <div className="text-center py-20 text-sm text-slate-400">
-              Aucun produit ne correspond à ces critères.
+              {t('common.noProductsFound')}
             </div>
           )}
 

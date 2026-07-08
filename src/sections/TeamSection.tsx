@@ -131,7 +131,7 @@ export default function TeamSection() {
                       className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-400"
                     >
                       <Mail size={12} />
-                      Email
+                      {t('common.email')}
                     </a>
                   )}
                   {member.phone && (
@@ -140,7 +140,7 @@ export default function TeamSection() {
                       className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-400"
                     >
                       <Phone size={12} />
-                      Appel
+                      {t('common.call')}
                     </a>
                   )}
                 </div>

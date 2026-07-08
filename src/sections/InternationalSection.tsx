@@ -6,20 +6,22 @@ import { useTranslation, useIsRTL } from '@/lib/i18n';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const destinations = [
-  { country: 'Maroc', flag: '🇲🇦', cities: 3 },
-  { country: 'France', flag: '🇫🇷', cities: 3 },
-  { country: 'Belgique', flag: '🇧🇪', cities: 2 },
-  { country: 'Suisse', flag: '🇨🇭', cities: 2 },
-  { country: 'Tunisie', flag: '🇹🇳', cities: 2 },
-  { country: 'Sénégal', flag: '🇸🇳', cities: 1 },
-];
 
 export default function InternationalSection() {
   const { t } = useTranslation();
   const isRTL = useIsRTL();
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const destinations = [
+    { key: 'dest_maroc', flag: '🇲🇦', cities: 3 },
+    { key: 'dest_france', flag: '🇫🇷', cities: 3 },
+    { key: 'dest_belgique', flag: '🇧🇪', cities: 2 },
+    { key: 'dest_suisse', flag: '🇨🇭', cities: 2 },
+    { key: 'dest_tunisie', flag: '🇹🇳', cities: 2 },
+    { key: 'dest_senegal', flag: '🇸🇳', cities: 1 },
+  ];
+
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -53,10 +55,10 @@ export default function InternationalSection() {
           <h3 className="i-reveal text-lg font-semibold mb-4" style={{ color: 'hsl(var(--cd-heading))' }}>{t('international.destinations')}</h3>
           <div className="i-reveal grid grid-cols-2 sm:grid-cols-3 gap-3 mb-10">
             {destinations.map((d) => (
-              <div key={d.country} className="flex items-center gap-2.5 p-3 rounded-xl hover:shadow-md transition-all cursor-pointer" style={{ background: 'hsl(var(--cd-card))' }}>
+              <div key={d.key} className="flex items-center gap-2.5 p-3 rounded-xl hover:shadow-md transition-all cursor-pointer" style={{ background: 'hsl(var(--cd-card))' }}>
                 <span className="text-2xl">{d.flag}</span>
                 <div>
-                  <div className="text-sm font-medium" style={{ color: 'hsl(var(--cd-heading))' }}>{d.country}</div>
+                  <div className="text-sm font-medium" style={{ color: 'hsl(var(--cd-heading))' }}>{t(`international.${d.key}`)}</div>
                   <div className="text-xs" style={{ color: 'hsl(var(--cd-body))' }}>{d.cities} {t('international.cities')}</div>
                 </div>
               </div>

@@ -38,7 +38,13 @@ export default function MaintenancePage({ onAuthenticated }: MaintenancePageProp
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col md:grid md:grid-cols-12 bg-white font-sans overflow-x-hidden">
+    <div className="relative min-h-screen w-full flex flex-col md:grid md:grid-cols-12 bg-white font-sans overflow-x-hidden">
+      {/* ── Top Header (Logo Top Left) ────────────────────────────────────── */}
+      <div className="absolute top-0 left-0 w-full p-6 md:p-8 flex justify-start z-20 pointer-events-none">
+        <div className="w-12 h-12 flex items-center justify-center relative pointer-events-auto">
+          <img src="/logo.png" alt="Cooper Dismedic" className="w-full h-full object-contain relative z-10" />
+        </div>
+      </div>
       
       {/* ── LEFT PANEL (Dark Gradient) ────────────────────────────────────── */}
       <div className="hidden md:flex md:col-span-5 flex-col justify-between p-12 bg-gradient-to-br from-[#091E2F] via-[#0b2438] to-[#0a3a40] text-white relative overflow-hidden">

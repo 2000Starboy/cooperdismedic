@@ -540,11 +540,91 @@ export const PRODUCTS: Product[] = [
     ppm: 30.00,
     relatedIds: [3, 4],
   },
+
+  // ── Additional Products (Imported from Database) ────────────────────────
+  {
+    id: 25,
+    name: 'PARACÉTAMOL 1000MG',
+    dci: 'Paracétamol',
+    laboratory: 'Cooper Pharma',
+    form: 'Comprimé',
+    dosage: '1000 mg',
+    therapeuticClass: 'Analgésique – Antipyrétique',
+    categories: ['analgesic'],
+    description: 'Antalgique et antipyrétique d\'action centrale, utilisé pour la fièvre et les douleurs légères à modérées.',
+    indications: 'Douleurs légères à modérées, céphalées, fièvre.',
+    posology: '1 comprimé toutes les 4 à 6 heures, selon besoin.',
+    contraindications: 'Hypersensibilité au paracétamol, insuffisance hépatique sévère.',
+    sideEffects: 'Rares réactions cutanées, troubles digestifs.',
+    conservation: 'Conserver à température ambiante, à l\'abri de l\'humidité.',
+    pregnancyCategory: 'B',
+    isPrescriptionRequired: false,
+    ppm: 12.5,
+    relatedIds: [26, 27],
+  },
+  {
+    id: 26,
+    name: 'IBUPROFÈNE 400MG',
+    dci: 'Ibuprofène',
+    laboratory: 'Sanofi Maroc',
+    form: 'Comprimé',
+    dosage: '400 mg',
+    therapeuticClass: 'Anti-inflammatoire non stéroïdien (AINS)',
+    categories: ['analgesic'],
+    description: 'AINS utilisé pour traiter les douleurs et l\'inflammation avec une action rapide.',
+    indications: 'Douleurs rhumatismales, céphalées, douleurs dentaires, fièvre.',
+    posology: '1 comprimé 3 fois par jour au cours des repas.',
+    contraindications: 'Ulcère évolutif, insuffisance rénale grave.',
+    sideEffects: 'Nausées, douleurs abdominales, vertiges.',
+    conservation: 'Conserver au frais et à l\'abri de l\'humidité.',
+    pregnancyCategory: 'C',
+    isPrescriptionRequired: false,
+    ppm: 22,
+    relatedIds: [25, 27],
+  },
+  {
+    id: 27,
+    name: 'AMOXICILLINE 500MG',
+    dci: 'Amoxicilline',
+    laboratory: 'Cooper Pharma',
+    form: 'Capsule',
+    dosage: '500 mg',
+    therapeuticClass: 'Antibiotique β-lactamine',
+    categories: ['antibiotic'],
+    description: 'Antibiotique à large spectre utilisé pour traiter diverses infections bactériennes.',
+    indications: 'Infections ORL, respiratoires, urinaires et cutanées.',
+    posology: '1 capsule toutes les 8 heures, selon prescription.',
+    contraindications: 'Hypersensibilité aux pénicillines, allergie connue.',
+    sideEffects: 'Nausées, diarrhée, rash cutané.',
+    conservation: 'Conserver à température ambiante, au sec.',
+    pregnancyCategory: 'B',
+    isPrescriptionRequired: true,
+    ppm: 18.5,
+    relatedIds: [25, 28],
+  },
+  {
+    id: 28,
+    name: 'OMÉPRAZOLE 20MG',
+    dci: 'Oméprazole',
+    laboratory: 'Cooper Pharma',
+    form: 'Gélule',
+    dosage: '20 mg',
+    therapeuticClass: 'Inhibiteur de la pompe à protons',
+    categories: ['digestive'],
+    description: 'Traitement de référence du reflux gastro-œsophagien et des ulcères gastriques.',
+    indications: 'RGO, ulcère gastro-duodénal, prévention d\'ulcère sous AINS.',
+    posology: '1 gélule par jour avant le petit-déjeuner.',
+    contraindications: 'Hypersensibilité aux IPP, interaction avec certains antiviraux.',
+    sideEffects: 'Céphalées, nausées, diarrhée légère.',
+    conservation: 'À l\'abri de l\'humidité et de la chaleur.',
+    pregnancyCategory: 'C',
+    isPrescriptionRequired: false,
+    ppm: 30,
+    relatedIds: [25, 27],
+  },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-/** Get the current season based on the month */
 export function getCurrentSeason(): ProductSeason {
   const month = new Date().getMonth() + 1; // 1–12
   if (month >= 3 && month <= 5) return 'spring';
@@ -569,10 +649,288 @@ export function getMomProducts(): Product[] {
   return PRODUCTS.filter((p) => p.categories.includes('mom'));
 }
 
-/** Get related products for a given product */
-export function getRelatedProducts(product: Product, limit = 4): Product[] {
-  const ids = product.relatedIds ?? [];
-  return PRODUCTS.filter((p) => ids.includes(p.id)).slice(0, limit);
+function normalizeDosageValue(dosage: string): { value: number; unit: string } | undefined {
+  if (!dosage) return undefined;
+  const m = String(dosage)
+    .toLowerCase()
+    .replace(',', '.')
+    .match(/([\d.]+)\s*(%|mg|g|ml|mcg|ug|l)?/i);
+  if (!m) return undefined;
+  const value = Number(m[1]);
+  const unit = (m[2] || '').toLowerCase();
+  return { value, unit };
+}
+
+function normalizeString(str: string): string {
+  return str.toLowerCase().trim();
+}
+
+function computeSimilarityScore(product: Product, candidate: Product): number {
+  if (product.id === candidate.id) return -1;
+
+  // Helper tokenization
+  function tokenize(value: string) {
+    return String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+  }
+
+  function normalizeDci(value: string) {
+    if (!value) return '';
+    // remove dosage numbers and units, parentheses, punctuation
+    return String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\b(\d+[\.,]?\d*\s*(mg|g|ml|mcg|ug|%)?)\b/gi, ' ')
+      .replace(/[^a-z\s]/g, ' ')
+      .split(/\s+/)
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+  }
+
+  // Levenshtein for fuzzy name scoring
+  function levenshtein(a: string, b: string) {
+    const A = a.split('');
+    const B = b.split('');
+    const m = A.length;
+    const n = B.length;
+    const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        const cost = A[i - 1] === B[j - 1] ? 0 : 1;
+        dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+      }
+    }
+    return dp[m][n];
+  }
+
+  function fuzzyNameScore(a: string, b: string) {
+    const sa = String(a || '').toLowerCase().trim();
+    const sb = String(b || '').toLowerCase().trim();
+    if (!sa || !sb) return 0;
+    const dist = levenshtein(sa, sb);
+    const maxLen = Math.max(sa.length, sb.length);
+    if (maxLen === 0) return 0;
+    const ratio = 1 - dist / maxLen;
+    if (ratio <= 0) return 0;
+    return Math.round(Math.min(10, Math.max(0, ratio * 10)));
+  }
+
+  const prodDci = normalizeDci(product.dci || product.name || '');
+  const candDci = normalizeDci(candidate.dci || candidate.name || '');
+  const prodTher = normalizeString(product.therapeuticClass || '');
+  const candTher = normalizeString(candidate.therapeuticClass || '');
+  const prodLab = normalizeString(product.laboratory || '');
+  const candLab = normalizeString(candidate.laboratory || '');
+  const prodForm = normalizeString(product.form || '');
+  const candForm = normalizeString(candidate.form || '');
+
+  let score = 0;
+
+  // DCI exact
+  if (prodDci && candDci && prodDci === candDci) score += 50;
+
+  // Therapeutic class
+  if (prodTher && candTher && (prodTher === candTher || prodTher.includes(candTher) || candTher.includes(prodTher))) score += 30;
+
+  // Laboratory
+  if (prodLab && candLab && prodLab === candLab) score += 10;
+
+  // Form
+  if (prodForm && candForm && prodForm === candForm) score += 5;
+
+  // Dosage (unit-aware)
+  const pd = normalizeDosageValue(product.dosage);
+  const cd = normalizeDosageValue(candidate.dosage);
+  if (pd && cd && pd.unit && cd.unit && pd.unit === cd.unit && pd.value === cd.value) score += 5;
+
+  // Fuzzy name up to 10
+  score += fuzzyNameScore(product.name || '', candidate.name || '');
+
+  // Tags / categories overlap — ignore numeric and unit tokens
+  function isUnitOrNumber(t: string) {
+    return /^\d+$/.test(t) || /^(%|mg|g|ml|mcg|ug|l)$/.test(t);
+  }
+  const prodTags = new Set([
+    ...(product.categories || []).map((c) => normalizeString(c)),
+    ...tokenize(product.name || '').filter((t) => !isUnitOrNumber(t)),
+    ...tokenize(product.dci || '').filter((t) => !isUnitOrNumber(t)),
+  ]);
+  const candTags = new Set([
+    ...(candidate.categories || []).map((c) => normalizeString(c)),
+    ...tokenize(candidate.name || '').filter((t) => !isUnitOrNumber(t)),
+    ...tokenize(candidate.dci || '').filter((t) => !isUnitOrNumber(t)),
+  ]);
+  let common = 0;
+  for (const t of candTags) if (prodTags.has(t)) common++;
+  score += Math.min(10, common * 2);
+
+  // Fallback keyword overlap when DCI or therapeutic class missing
+  if (!prodDci || !candDci || !prodTher || !candTher) {
+    const prodKeywords = new Set([...tokenize(product.name || ''), ...tokenize(product.indications || ''), ...tokenize(product.therapeuticClass || '')]);
+    const candKeywords = new Set([...tokenize(candidate.name || ''), ...tokenize(candidate.indications || ''), ...tokenize(candidate.therapeuticClass || '')]);
+    let shared = 0;
+    for (const k of candKeywords) if (prodKeywords.has(k)) shared++;
+    if (shared >= 3) score += 40;
+    else if (shared === 2) score += 20;
+    else if (shared === 1) score += 10;
+  }
+
+  // small boost if already linked
+  if (product.relatedIds?.includes(candidate.id) || candidate.relatedIds?.includes(product.id)) score += 5;
+
+  if (score < 0) score = 0;
+  return score;
+}
+
+/** Get related products for a given product using the provided product catalogue. */
+export function getRelatedProducts(product: Product, limit = 4, products: Product[] = PRODUCTS): Product[] {
+  const pool = products.filter(Boolean);
+
+  // Helper to detect placeholder imports (article-like entries)
+  function isPlaceholder(p: Product) {
+    const tc = String(p.therapeuticClass || '').toLowerCase();
+    return (
+      tc.includes('produit import') ||
+      normalizeString(p.dci || '') === 'à préciser' ||
+      normalizeString(p.dci || '') === 'a preciser'
+    );
+  }
+
+  // Filter out low-quality placeholder products from candidate pool
+  const candidates = pool.filter((c) => !isPlaceholder(c));
+
+  // If the current product is a placeholder (likely an article), attempt a token-based lookup
+  const currentIsPlaceholder = isPlaceholder(product);
+  if (currentIsPlaceholder) {
+    const title = String(product.name || '').toLowerCase();
+
+    // Detect specific domain keywords and map to product filters
+    const mappings = [
+      { key: /antidepr|antid[eé]press/i, kind: 'antidepressant' },
+      { key: /antisept/i, kind: 'antiseptic' },
+      { key: /grossess/i, kind: 'pregnancy' },
+    ];
+
+    const found = mappings.find((m) => m.key.test(title));
+    if (found && found.kind === 'antidepressant') {
+      const antidepressantDcis = [
+        'sertraline',
+        'fluoxetine',
+        'citalopram',
+        'escitalopram',
+        'paroxetine',
+        'mirtazapine',
+        'venlafaxine',
+        'duloxetine',
+        'amitriptyline',
+        'nortriptyline',
+      ];
+
+      const hits = candidates.filter((c) => {
+        const tc = String(c.therapeuticClass || '').toLowerCase();
+        const dci = String(c.dci || '').toLowerCase();
+        const name = String(c.name || '').toLowerCase();
+        if (tc.includes('antid') || tc.includes('antid[eé]p')) return true;
+        for (const d of antidepressantDcis) {
+          if (dci.includes(d) || name.includes(d)) return true;
+        }
+        return false;
+      });
+
+      // If we found explicit antidepressant matches, return them sorted by name
+      if (hits.length > 0) return hits.slice(0, limit);
+    }
+
+    // fallback: simple token overlap (but ignore short stopwords)
+    const stopwords = new Set(['et', 'la', 'le', 'les', 'de', 'des', 'a', 'à', 'pour', 'sur', 'du', 'une', 'un', 'l', 'rsquo']);
+    const tokens = product.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s]+/g, ' ')
+      .split(/\s+/)
+      .filter((t) => t && !stopwords.has(t))
+      .slice(0, 10);
+
+    const scored = candidates
+      .map((c) => {
+        const hay = [c.therapeuticClass, c.dci, c.name].join(' ').toLowerCase();
+        const matchCount = tokens.reduce((acc, t) => acc + (hay.includes(t) ? 1 : 0), 0);
+        const dciExact = tokens.some((t) => normalizeString(c.dci || '').includes(t)) ? 4 : 0;
+        return { candidate: c, score: matchCount + dciExact };
+      })
+      .filter((s) => s.score > 0)
+      .sort((a, b) => b.score - a.score || a.candidate.name.localeCompare(b.candidate.name))
+      .map((s) => s.candidate)
+      .slice(0, limit);
+
+    return scored;
+  }
+
+  // Otherwise use the standard similarity scoring on filtered candidates
+  // Pre-filter candidates by strong signals to avoid noisy unrelated matches.
+  function tokenizeLocal(value: string) {
+    return String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+  }
+
+  function normalizeDciLocal(value: string) {
+    if (!value) return '';
+    return String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\b(\d+[\.,]?\d*\s*(mg|g|ml|mcg|ug|%)?)\b/gi, ' ')
+      .replace(/[^a-z\s]/g, ' ')
+      .split(/\s+/)
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+  }
+
+  const prodDciNorm = normalizeDciLocal(product.dci || product.name || '');
+  const prodTherNorm = normalizeString(product.therapeuticClass || '');
+
+  const strongCandidates = candidates.filter((c) => {
+    const cDci = normalizeDciLocal(c.dci || c.name || '');
+    const cTher = normalizeString(c.therapeuticClass || '');
+    if (cDci && prodDciNorm && cDci === prodDciNorm) return true;
+    if (cTher && prodTherNorm && cTher === prodTherNorm) return true;
+    const ptoks = tokenizeLocal(product.name || product.dci || '').filter((t) => t.length > 2).slice(0, 12);
+    const ctoks = tokenizeLocal(c.name || c.dci || '').filter((t) => t.length > 2).slice(0, 12);
+    const common = ptoks.filter((t) => ctoks.includes(t)).length;
+    if (common >= 2) return true;
+    return false;
+  });
+
+  const poolToScore = strongCandidates.length > 0 ? strongCandidates : candidates;
+
+  const scored = poolToScore
+    .map((candidate) => ({ candidate, score: computeSimilarityScore(product, candidate) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score || a.candidate.name.localeCompare(b.candidate.name));
+
+  // Require a minimum confidence threshold to avoid showing unrelated products when the catalogue lacks true matches.
+  const MIN_SCORE = 30;
+  const highConfidence = scored.filter((s) => s.score >= MIN_SCORE);
+  const finalList = (highConfidence.length > 0 ? highConfidence : scored).map((s) => s.candidate).slice(0, limit);
+  return finalList;
 }
 
 /** Search products by name, DCI, or laboratory */
