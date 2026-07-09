@@ -734,10 +734,39 @@ function computeSimilarityScore(product: Product, candidate: Product): number {
   const prodForm = normalizeString(product.form || '');
   const candForm = normalizeString(candidate.form || '');
 
+  function dciTokens(value: string) {
+    return String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/(\d+[\.,]?\d*\s*(mg|g|ml|mcg|ug|%)?)/gi, ' ')
+      .replace(/[|\/,&]/g, ' ')
+      .replace(/[^a-z\s]/g, ' ')
+      .split(/\s+/)
+      .filter((token) => token && token.length > 1);
+  }
+function dciOverlapScore(a: string, b: string) {
+    if (!a || !b) return 0;
+    if (a === b) return 50;
+    const aTokens = new Set(dciTokens(a));
+    const bTokens = new Set(dciTokens(b));
+    const shared = [...aTokens].filter((token) => bTokens.has(token));
+    if (shared.length === 0) return 0;
+    if (a.includes(b) || b.includes(a)) return 40;
+    if (shared.length >= 3) return 35;
+    if (shared.length === 2) return 25;
+    return 15;
+  }
+
+  function isImportedAuto(p: Product) {
+    return String(p.therapeuticClass || '').toLowerCase().includes('produit import');
+  }
+
   let score = 0;
 
-  // DCI exact
-  if (prodDci && candDci && prodDci === candDci) score += 50;
+  // DCI exact or partial match
+  score += dciOverlapScore(prodDci, candDci);
+  if ((isImportedAuto(product) || isImportedAuto(candidate)) && score > 0) score += 10;
 
   // Therapeutic class
   if (prodTher && candTher && (prodTher === candTher || prodTher.includes(candTher) || candTher.includes(prodTher))) score += 30;
@@ -764,11 +793,13 @@ function computeSimilarityScore(product: Product, candidate: Product): number {
     ...(product.categories || []).map((c) => normalizeString(c)),
     ...tokenize(product.name || '').filter((t) => !isUnitOrNumber(t)),
     ...tokenize(product.dci || '').filter((t) => !isUnitOrNumber(t)),
+    ...tokenize(product.therapeuticClass || '').filter((t) => !isUnitOrNumber(t)),
   ]);
   const candTags = new Set([
     ...(candidate.categories || []).map((c) => normalizeString(c)),
     ...tokenize(candidate.name || '').filter((t) => !isUnitOrNumber(t)),
     ...tokenize(candidate.dci || '').filter((t) => !isUnitOrNumber(t)),
+    ...tokenize(candidate.therapeuticClass || '').filter((t) => !isUnitOrNumber(t)),
   ]);
   let common = 0;
   for (const t of candTags) if (prodTags.has(t)) common++;
@@ -799,10 +830,16 @@ export function getRelatedProducts(product: Product, limit = 4, products: Produc
   // Helper to detect placeholder imports (article-like entries)
   function isPlaceholder(p: Product) {
     const tc = String(p.therapeuticClass || '').toLowerCase();
+    const dci = normalizeString(p.dci || '');
+    const hasRealDci = dci && dci !== 'à préciser' && dci !== 'a preciser';
+
+    if (tc.includes('produit import')) {
+      return !hasRealDci;
+    }
+
     return (
-      tc.includes('produit import') ||
-      normalizeString(p.dci || '') === 'à préciser' ||
-      normalizeString(p.dci || '') === 'a preciser'
+      dci === 'à préciser' ||
+      dci === 'a preciser'
     );
   }
 
