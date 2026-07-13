@@ -4,7 +4,7 @@
 // ============================================================================
 
 import { useState, useEffect, useCallback } from 'react';
-import { Menu, X, ArrowRight, Globe, ChevronDown, Sun, Moon, Bell } from 'lucide-react';
+import { Menu, X, ArrowRight, Globe, ChevronDown, Sun, Moon, Bell, Check } from 'lucide-react';
 import { useTranslation, localeNames, localeFlags, type Locale } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
 
@@ -36,7 +36,8 @@ export default function Navigation({ darkBackground = false }: NavigationProps) 
     importedCount: number;
     importedProducts: Array<{ id: number; name: string; dci: string; url?: string }>;
   } | null>(null);
-  const [seenSyncAt, setSeenSyncAt] = useState<string | null>(null);
+  const [readIds, setReadIds] = useState<number[]>([]);
+  const [isLoadingSync, setIsLoadingSync] = useState(false);
 
   // ── Scroll & section tracking ─────────────────────────────────────
   useEffect(() => {
@@ -82,11 +83,10 @@ export default function Navigation({ darkBackground = false }: NavigationProps) 
 
   const isDark = theme === 'dark' || darkBackground;
 
-  const hasNewNotification = Boolean(
-    notification?.importedCount &&
-    notification.syncedAt &&
-    notification.syncedAt !== seenSyncAt
+  const unreadProducts = (notification?.importedProducts ?? []).filter(
+    (p) => !readIds.includes(p.id)
   );
+  const unreadCount = unreadProducts.length;
 
   const formatSyncDate = useCallback((value: string) => {
     try {
@@ -100,8 +100,10 @@ export default function Navigation({ darkBackground = false }: NavigationProps) 
   }, [locale]);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem('cd-last-sync-seen');
-    if (saved) setSeenSyncAt(saved);
+    try {
+      const saved = window.localStorage.getItem('cd-notifications-read');
+      if (saved) setReadIds(JSON.parse(saved));
+    } catch { /* ignore corrupt data */ }
   }, []);
 
   useEffect(() => {
@@ -131,29 +133,80 @@ export default function Navigation({ darkBackground = false }: NavigationProps) 
       }
     };
     load();
-    const timer = window.setInterval(load, 5 * 60 * 1000);
+    // Recharger les notifications toutes les 30 secondes (au lieu de 5 minutes)
+    const timer = window.setInterval(load, 30 * 1000);
     return () => {
       active = false;
       window.clearInterval(timer);
     };
   }, []);
 
-  const markNotificationsSeen = () => {
-    if (notification?.syncedAt) {
-      window.localStorage.setItem('cd-last-sync-seen', notification.syncedAt);
-      setSeenSyncAt(notification.syncedAt);
-      setNotification((prev) => (prev ? { ...prev, importedCount: 0 } : prev));
+  // Fonction pour déclencher la synchronisation avec cure.ma
+  const triggerSync = async () => {
+    setIsLoadingSync(true);
+    try {
+      // Déclencher la synchronisation avec cure.ma
+      const syncResponse = await fetch('/api/products/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!syncResponse.ok) {
+        console.error('Sync failed:', syncResponse.statusText);
+      }
+
+      // Attendre un peu puis recharger les notifications
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Recharger les notifications mises à jour
+      const endpoints = ['/api/products/last-sync', '/api/last-sync.json', '/last-sync.json'];
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(endpoint, { cache: 'no-store' });
+          if (!response.ok) continue;
+          const data = await response.json();
+          const normalized = {
+            syncedAt: String(data.syncedAt ?? ''),
+            count: Number(data.count ?? 0),
+            importedCount: Number(data.importedCount ?? (Array.isArray(data.importedProducts) ? data.importedProducts.length : 0)),
+            importedProducts: Array.isArray(data.importedProducts) ? data.importedProducts : [],
+          };
+          setNotification(normalized);
+          return;
+        } catch {
+          // try next endpoint
+        }
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
+    } finally {
+      setIsLoadingSync(false);
     }
   };
 
-
-
-  const toggleNotifications = () => {
-    setIsNotifOpen((prev) => {
-      const next = !prev;
-      if (!prev) markNotificationsSeen();
+  const markOneRead = (id: number) => {
+    setReadIds((prev) => {
+      if (prev.includes(id)) return prev;
+      const next = [...prev, id];
+      window.localStorage.setItem('cd-notifications-read', JSON.stringify(next));
       return next;
     });
+  };
+
+  const markAllRead = () => {
+    if (!notification) return;
+    const allIds = notification.importedProducts.map((p) => p.id);
+    setReadIds((prev) => {
+      const merged = Array.from(new Set([...prev, ...allIds]));
+      window.localStorage.setItem('cd-notifications-read', JSON.stringify(merged));
+      return merged;
+    });
+  };
+
+  const toggleNotifications = () => {
+    setIsNotifOpen((prev) => !prev);
   };
 
   const x = (count: number) => (count > 1 ? 's' : '');
@@ -246,75 +299,129 @@ export default function Navigation({ darkBackground = false }: NavigationProps) 
                   aria-label="Notifications"
                 >
                   <Bell size={15} />
-                  {(notification?.importedCount && notification.syncedAt !== seenSyncAt) ? (
+                  {unreadCount > 0 ? (
                     <span className="absolute top-0 right-0 inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white px-1">
-                      {notification.importedCount}
+                      {unreadCount}
                     </span>
-                  ) : hasNewNotification ? (
-                    <span className="absolute top-1 right-1 inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                   ) : null}
                 </button>
 
                 {isNotifOpen && (
                   <div className="absolute right-0 mt-2 w-80 rounded-2xl border bg-white text-slate-900 shadow-xl dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 z-10">
-                    <div className="px-4 py-3 border-b dark:border-slate-800">
-                      <div className="text-sm font-semibold">Dernière synchronisation</div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">
-                        {notification ? formatSyncDate(notification.syncedAt) : 'Chargement...'}
+                    <div className="px-4 py-3 border-b dark:border-slate-800 flex items-center justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold">Dernière synchronisation</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                          {notification ? formatSyncDate(notification.syncedAt) : 'Chargement...'}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={triggerSync}
+                          disabled={isLoadingSync}
+                          className="px-2 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors whitespace-nowrap disabled:opacity-50"
+                          title="Synchroniser avec cure.ma"
+                        >
+                          {isLoadingSync ? '⟳' : '↻'}
+                        </button>
+                        {unreadCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={markAllRead}
+                            className="px-2 py-1.5 text-[11px] font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors whitespace-nowrap"
+                          >
+                            Tout lire
+                          </button>
+                        )}
                       </div>
                     </div>
                     <div className="p-4">
                       {!notification ? (
                         <div className="text-sm text-slate-500 dark:text-slate-400">Impossible de charger les notifications.</div>
-                      ) : notification.importedCount > 0 ? (
+                      ) : notification.importedProducts.length > 0 ? (
                         <>
-                          <div className="text-sm font-medium mb-3">{notification.importedCount} nouveau{x(notification.importedCount)}</div>
-                          <ul className="space-y-3 max-h-52 overflow-y-auto pr-1">
-                            {notification.importedProducts.slice(0, 5).map((item) => (
-                              <li key={item.id}>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    // mark as seen
-                                    markNotificationsSeen();
+                          <div className="text-sm font-medium mb-3">
+                            {unreadCount > 0
+                              ? `${unreadCount} non lu${x(unreadCount)}`
+                              : 'Tout est lu'}
+                          </div>
+                          <ul className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                            {notification.importedProducts.slice(0, 10).map((item) => {
+                              const isRead = readIds.includes(item.id);
+                              return (
+                                <li key={item.id}>
+                                  <div className="relative">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        markOneRead(item.id);
 
-                                    // Build a minimal product object to open in the app
-                                    const product = {
-                                      id: Number(item.id) || -1,
-                                      name: item.name || 'Produit',
-                                      dci: item.dci || 'À préciser',
-                                      laboratory: 'À préciser',
-                                      form: 'À préciser',
-                                      dosage: 'À préciser',
-                                      therapeuticClass: 'Produit importé',
-                                      categories: ['digestive'],
-                                      description: item.dci || '',
-                                      indications: 'À compléter',
-                                      posology: 'À compléter',
-                                      contraindications: 'À compléter',
-                                      sideEffects: 'À compléter',
-                                      conservation: 'À compléter',
-                                      pregnancyCategory: 'N/A',
-                                      isPrescriptionRequired: false,
-                                      relatedIds: [],
-                                    };
+                                        const product = {
+                                          id: Number(item.id) || -1,
+                                          name: item.name || 'Produit',
+                                          dci: item.dci || 'À préciser',
+                                          laboratory: 'À préciser',
+                                          form: 'À préciser',
+                                          dosage: 'À préciser',
+                                          therapeuticClass: 'Produit importé',
+                                          categories: ['digestive'],
+                                          description: item.dci || '',
+                                          indications: 'À compléter',
+                                          posology: 'À compléter',
+                                          contraindications: 'À compléter',
+                                          sideEffects: 'À compléter',
+                                          conservation: 'À compléter',
+                                          pregnancyCategory: 'N/A',
+                                          isPrescriptionRequired: false,
+                                          relatedIds: [],
+                                        };
 
-                                    // Dispatch a global event the app listens to
-                                    try {
-                                      window.dispatchEvent(new CustomEvent('cd:open-product', { detail: { product } }));
-                                    } catch (e) {
-                                      // fallback: just open in new tab if url present
-                                      if (item.url) window.open(item.url, '_blank');
-                                    }
-                                  }}
-                                  className="w-full text-left rounded-2xl border border-slate-200 bg-slate-50 p-3 transition-colors duration-200 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"
-                                >
-                                  <div className="text-sm font-semibold">{item.name}</div>
-                                  <div className="text-[11px] text-slate-500 dark:text-slate-400">{item.dci}</div>
-                                </button>
-                              </li>
-                            ))}
+                                        try {
+                                          window.dispatchEvent(new CustomEvent('cd:open-product', { detail: { product } }));
+                                        } catch (e) {
+                                          if (item.url) window.open(item.url, '_blank');
+                                        }
+                                      }}
+                                      className={`w-full text-left rounded-2xl border p-3 transition-colors duration-200 ${
+                                        isRead
+                                          ? 'border-slate-100 bg-white dark:border-slate-800/50 dark:bg-slate-950 opacity-60'
+                                          : 'border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800'
+                                      }`}
+                                    >
+                                      <div className="flex items-start justify-between gap-2">
+                                        <div className="min-w-0">
+                                          <div className="text-sm font-semibold truncate">{item.name}</div>
+                                          <div className="text-[11px] text-slate-500 dark:text-slate-400">{item.dci}</div>
+                                        </div>
+                                        {!isRead && (
+                                          <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-blue-500" />
+                                        )}
+                                      </div>
+                                    </button>
+                                    {!isRead && (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          markOneRead(item.id);
+                                        }}
+                                        className="absolute top-2 right-2 flex items-center justify-center w-6 h-6 rounded-full bg-slate-200/80 hover:bg-emerald-100 text-slate-500 hover:text-emerald-600 dark:bg-slate-800 dark:hover:bg-emerald-900/40 dark:text-slate-400 dark:hover:text-emerald-400 transition-colors"
+                                        title="Marquer comme lu"
+                                      >
+                                        <Check size={12} />
+                                      </button>
+                                    )}
+                                  </div>
+                                </li>
+                              );
+                            })}
                           </ul>
+                          {notification.importedProducts.length > 10 && (
+                            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
+                              +{notification.importedProducts.length - 10} autre{notification.importedProducts.length - 10 > 1 ? 's' : ''} non affiché{notification.importedProducts.length - 10 > 1 ? 's' : ''}
+                            </div>
+                          )}
                         </>
                       ) : (
                         <div className="text-sm text-slate-500 dark:text-slate-400">Aucune nouvelle importation.</div>

@@ -1,37 +1,61 @@
 {
-  "syncedAt": "2026-07-08T22:43:17.000Z",
-  "count": 19,
-  "importedCount": 5,
+  "syncedAt": "2026-07-10T11:25:09.806Z",
+  "count": 370,
+  "importedCount": 9,
   "importedProducts": [
     {
-      "id": 1013,
-      "name": "PARANTAL C 1000, COMPRIMÉ EFFERVESCENT",
-      "dci": "Paracetamol | Acide Ascorbique",
-      "url": "https://www.cure.ma/medicaments/parantal-c-1000-comprime-effervescent"
+      "id": 1405,
+      "name": "AMLODIPINE GT 5 MG, COMPRIMÉ SÉCABLE",
+      "dci": "Amlodipine",
+      "url": "https://cure.ma/medicaments/amlodipine-gt-5-mg-comprime-secable"
     },
     {
-      "id": 1014,
-      "name": "PARACETAMOL B. BRAUN 10 MG, SOLUTION POUR PERFUSION",
-      "dci": "Paracétamol",
-      "url": "https://www.cure.ma/medicaments/paracetamol-b-braun-10-mg-solution-pour-perfusion"
+      "id": 1406,
+      "name": "AURICULARUM 90000 UI-100000UI, POUDRE AURICULAIRE ET SOLVANT",
+      "dci": "Oxytétracycline | Polymyxine | Nystatine | Déxaméthasone",
+      "url": "https://cure.ma/medicaments/auricularum-90000-ui-100000ui-poudre-auriculaire-et-solvant"
     },
     {
-      "id": 1015,
-      "name": "AMOXIL 500 MG, COMPRIMÉ DISPERSIBLE",
+      "id": 1407,
+      "name": "AVACOR 150 MG, COMPRIMÉ PELLICULÉ",
+      "dci": "Irbesartan",
+      "url": "https://cure.ma/medicaments/avacor-150-mg-comprime-pellicule"
+    },
+    {
+      "id": 1408,
+      "name": "AVAMYS 27. 5 ΜG / PULVÉRISATION, SUSPENSION POUR PULVÉRISATION NASALE",
+      "dci": "Fluticasone",
+      "url": "https://cure.ma/medicaments/avamys-27-5-g-pulverisation-suspension-pour-pulverisation-nasale"
+    },
+    {
+      "id": 1409,
+      "name": "AXIMYCINE 1 G, COMPRIMÉ DISPERSIBLE",
       "dci": "Amoxicilline",
-      "url": "https://www.cure.ma/medicaments/amoxil-500-mg-comprime-dispersible"
+      "url": "https://cure.ma/medicaments/aximycine-1-g-comprime-dispersible"
     },
     {
-      "id": 1016,
-      "name": "AVELOX 400 MG IV, SOLUTÉ INJECTABLE",
-      "dci": "Moxifloxacine",
-      "url": "https://www.cure.ma/medicaments/avelox-400-mg-iv-solute-injectable"
+      "id": 1410,
+      "name": "AXIMYCINE 1 G, POUDRE POUR PRÉPARATION INJECTABLE",
+      "dci": "Amoxicilline",
+      "url": "https://cure.ma/medicaments/aximycine-1-g-poudre-pour-preparation-injectable"
     },
     {
-      "id": 1017,
-      "name": "FLAGYL 250 MG, COMPRIMÉ",
-      "dci": "Métronidazole",
-      "url": "https://www.cure.ma/medicaments/flagyl-250-mg-comprime"
+      "id": 1411,
+      "name": "AXIMYCINE 500 MG / 5 ML, POUDRE POUR SUSPENSION ORALE (SANS SUCRE)",
+      "dci": "Amoxicilline",
+      "url": "https://cure.ma/medicaments/aximycine-500-mg-5-ml-poudre-pour-suspension-orale-sans-sucre"
+    },
+    {
+      "id": 1412,
+      "name": "AXIMYCINE 500 MG, INJECTABLE",
+      "dci": "Amoxicilline",
+      "url": "https://cure.ma/medicaments/aximycine-500-mg-injectable"
+    },
+    {
+      "id": 1413,
+      "name": "AXONYL 150 MG, COMPRIMÉ PELLICULÉ SÉCABLE [P]",
+      "dci": "Quétiapine",
+      "url": "https://cure.ma/medicaments/axonyl-150-mg-comprime-pellicule-secable-p"
     }
   ]
 }

@@ -73,11 +73,21 @@ const server = http.createServer(async (req, res) => {
 });
 
 async function runDailySync() {
+  const startTime = new Date();
+  console.log(`[SYNC] ⏱️  Starting daily synchronization at ${startTime.toISOString()}`);
   try {
     const result = await syncProducts();
-    console.log(`[SYNC] ${new Date().toISOString()} - synced ${result.count} products, imported ${result.importedCount}`);
+    const duration = Math.round((new Date().getTime() - startTime.getTime()) / 1000);
+    console.log(`[SYNC] ✅ Completed at ${new Date().toISOString()}`);
+    console.log(`[SYNC]    • Total products: ${result.count}`);
+    console.log(`[SYNC]    • Newly imported: ${result.importedCount}`);
+    console.log(`[SYNC]    • Duration: ${duration}s`);
+    if (result.importedProducts && result.importedProducts.length > 0) {
+      console.log(`[SYNC]    • New products: ${result.importedProducts.map(p => p.name).join(', ')}`);
+    }
   } catch (error) {
-    console.error('[SYNC] failed to sync products:', error);
+    console.error(`[SYNC] ❌ Failed to sync products at ${new Date().toISOString()}`);
+    console.error(`[SYNC]    Error: ${error.message}`);
   }
 }
 
@@ -86,19 +96,24 @@ function getNext3AMDelay() {
   const next = new Date(now);
   next.setHours(3, 0, 0, 0);
   if (next <= now) next.setDate(next.getDate() + 1);
-  return next.getTime() - now.getTime();
+  const delay = next.getTime() - now.getTime();
+  const hours = Math.round(delay / 1000 / 3600);
+  const mins = Math.round((delay / 1000 % 3600) / 60);
+  console.log(`[SYNC] ⏰ Next sync scheduled for ${next.toLocaleString('fr-FR')} (in ${hours}h ${mins}m)`);
+  return delay;
 }
 
 function scheduleDailySync() {
   const delay = getNext3AMDelay();
-  console.log(`[SYNC] scheduling next sync in ${Math.round(delay / 1000 / 60)} minutes`);
   setTimeout(async () => {
+    console.log(`[SYNC] 🔔 3h00 alarm! Starting scheduled sync...`);
     await runDailySync();
+    // Schedule every 24 hours after first execution
     setInterval(runDailySync, 24 * 60 * 60 * 1000);
   }, delay);
 }
 
 server.listen(port, () => {
-  console.log(`Products API listening on http://localhost:${port}/api/products`);
+  console.log(`🚀 Products API listening on http://localhost:${port}/api/products`);
   scheduleDailySync();
 });

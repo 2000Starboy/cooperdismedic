@@ -64,13 +64,22 @@ function readJsonLdCandidate(html) {
 }
 
 function extractByLabel(text, labels) {
-  const pattern = new RegExp(
+  // First try label followed by colon/dash on same line
+  const inlinePattern = new RegExp(
     `(?:${labels.join('|')})\\s*[:\\-]\\s*([^\\n.;,]{1,120}?)(?=(?:\\s+(?:Laboratoire|Laboratory|Fabricant|Manufacturer|Marque|Forme|Formulation|Présentation|Dosage|Dose|Concentration|Dosage recommandé|DCI|Principe actif|Substance active|Substance active ingredient|Active ingredient))|$)`,
     'i'
   );
-  const match = text.match(pattern);
-  return match ? normalizeText(match[1]) : '';
+  const inlineMatch = text.match(inlinePattern);
+  if (inlineMatch) return normalizeText(inlineMatch[1]);
+
+  // Fallback: label as a heading on its own line followed by a paragraph
+  const blockPattern = new RegExp(`(?:\\n|^)\\s*(?:${labels.join('|')})\\s*(?:\\n|\\r|\\s)+([\\s\\S]{1,500}?)\\s*(?=\\n\\s*\\n|$)`, 'i');
+  const blockMatch = text.match(blockPattern);
+  if (blockMatch) return normalizeText(blockMatch[1].replace(/[\n\r]+/g, ' '));
+
+  return '';
 }
+
 
 function inferCategory(name, dci) {
   const source = `${name} ${dci}`.toLowerCase();
@@ -125,6 +134,102 @@ export function extractProductDataFromHtml(html, sourceUrl = '') {
       jsonLd?.dosageForm
   );
 
+  const indications = normalizeText(
+    extractByLabel(plainText, ['Indications', 'Indication', 'Indications thérapeutiques', 'Indication(s)']) || jsonLd?.indication || jsonLd?.indications || ''
+  );
+
+  const posology = normalizeText(
+    extractByLabel(plainText, ['Posologie', 'Posology', 'Mode d\'emploi', 'Mode d\'utilisation', 'Posologie recommandée', 'Dosage recommandé']) || jsonLd?.dosage || ''
+  );
+
+  const contraindications = normalizeText(
+    extractByLabel(plainText, ['Contre-indications', 'Contre indication', 'Contraindications', 'Contre-indication']) || jsonLd?.contraindication || ''
+  );
+
+  const sideEffects = normalizeText(
+    extractByLabel(plainText, ['Effets indésirables', 'Effets secondaires', 'Effets', 'Side effects', 'Adverse reactions']) || jsonLd?.sideEffects || jsonLd?.adverseEffects || ''
+  );
+
+  const conservation = normalizeText(
+    extractByLabel(plainText, ['Conservation', 'Conserver', 'Storage', 'Conservation et durée']) || jsonLd?.storage || ''
+  );
+
+  // Fallback: try to extract product sections from Next.js serialized payload (self.__next_f)
+  function readNextJsPayload(htmlText) {
+    const parts = [];
+    const re = /self\.__next_f\.push\(\[1,"([\s\S]*?)"\]\);/g;
+    let m;
+    while ((m = re.exec(htmlText))) {
+      // unescape common sequences
+      const s = m[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      parts.push(s);
+    }
+    return parts.join('\n');
+  }
+
+  function extractSectionFromNextPayload(payload, label) {
+    if (!payload) return '';
+    const idx = payload.search(new RegExp(label, 'i'));
+    if (idx === -1) return '';
+    // capture until next section label or end (limit length)
+    const rest = payload.slice(idx);
+    const endMatch = rest.search(/(Indications|Posologie|Contre-indications|Effets indésirables|Conservation|FAQPage|<\/div>|","|",)/i);
+    const slice = endMatch === -1 ? rest.slice(0, 2000) : rest.slice(0, Math.min(2000, endMatch));
+    // remove JSON-like and HTML wrappers
+    return normalizeText(slice.replace(/\\"/g, '"').replace(/<[^>]+>/g, ' ').replace(/\{[\s\S]*?\}/g, ' ').replace(/\[|\]/g, ' '));
+  }
+
+  const nextPayload = readNextJsPayload(html);
+  if (nextPayload) {
+    // Prefer payload-derived values if current extraction is empty or placeholder
+    if (!indications || indications === 'À compléter') {
+      const v = extractSectionFromNextPayload(nextPayload, 'Indications');
+      if (v) indications = v;
+    }
+
+    if (!posology || posology === 'À compléter') {
+      const v = extractSectionFromNextPayload(nextPayload, 'Posologie');
+      if (v) posology = v;
+    }
+
+    if (!contraindications || contraindications === 'À compléter') {
+      const v = extractSectionFromNextPayload(nextPayload, 'Contre-indications');
+      if (v) contraindications = v;
+    }
+
+    if (!sideEffects || sideEffects === 'À compléter') {
+      const v = extractSectionFromNextPayload(nextPayload, 'Effets indésirables');
+      if (v) sideEffects = v;
+    }
+
+    if (!conservation || conservation === 'À compléter') {
+      const v = extractSectionFromNextPayload(nextPayload, 'Conservation');
+      if (v) conservation = v;
+    }
+  }
+
+  // Try to extract pregnancy category (A/B/C/D/X/N/A)
+  let pregnancyCategory = '';
+  const pregMatch = plainText.match(/cat[eé]gorie\s*(grossesse|de grossesse)\s*[:\-\s]*([ABCDXNAabcdnx\/\s]+)/i);
+  if (pregMatch) pregnancyCategory = normalizeText(pregMatch[2]).toUpperCase().replace(/[^A-Z\/]/g, '') || '';
+  if (!pregnancyCategory) {
+    const pregShort = (plainText.match(/grossesse\s*[:\-\s]*([ABCDXNA])/i) || [])[1];
+    if (pregShort) pregnancyCategory = pregShort.toUpperCase();
+  }
+
+  // Extract price (PPM / Prix public / Prix)
+  function extractPrice(text) {
+    const m = text.match(/(?:ppm|prix public|prix)\s*[:\-]?\s*(?:≈|~)?\s*([0-9]+(?:[.,][0-9]+)?)(?:\s*(?:dh|dhs|mad|dhm|dhs|\u20ac|€|\$))?/i);
+    if (m) return m[1].replace(',', '.');
+    const m2 = text.match(/([0-9]+(?:[.,][0-9]+)?)\s*(?:dh|dhs|mad|dhm|dhs|\u20ac|€|\$)/i);
+    if (m2) return m2[1].replace(',', '.');
+    return '';
+  }
+  const ppm = extractPrice(plainText) || '';
+
+  // Detect if prescription is required
+  const isPrescriptionRequired = /sur ordonnance|requiert une ordonnance|vente sur ordonnance|prescription obligatoire|prescription requise/i.test(plainText);
+
   return {
     name,
     dci,
@@ -133,6 +238,14 @@ export function extractProductDataFromHtml(html, sourceUrl = '') {
     dosage,
     sourceUrl,
     description: normalizeText(jsonLd?.description || `${name} importé automatiquement depuis ${sourceUrl || 'une source externe'}.`),
+    indications,
+    posology,
+    contraindications,
+    sideEffects,
+    conservation,
+    pregnancyCategory,
+    ppm,
+    isPrescriptionRequired,
   };
 }
 
@@ -144,6 +257,14 @@ export function buildImportedProduct({
   dosage,
   sourceUrl,
   existingIds = [],
+  indications = '',
+  posology = '',
+  contraindications = '',
+  sideEffects = '',
+  conservation = '',
+  pregnancyCategory = '',
+  ppm = '',
+  isPrescriptionRequired = false,
 }) {
   const nextId = Math.max(0, ...existingIds) + 1;
   const normalizedName = normalizeText(name).toUpperCase();
@@ -163,20 +284,42 @@ export function buildImportedProduct({
     therapeuticClass: 'Produit importé automatiquement',
     categories,
     description: `Produit importé automatiquement depuis ${sourceUrl || 'une source externe'}.`,
-    indications: 'À compléter',
-    posology: 'À compléter',
-    contraindications: 'À compléter',
-    sideEffects: 'À compléter',
-    conservation: 'À compléter',
-    pregnancyCategory: 'N/A',
-    isPrescriptionRequired: false,
+    indications: indications || 'À compléter',
+    posology: posology || 'À compléter',
+    contraindications: contraindications || 'À compléter',
+    sideEffects: sideEffects || 'À compléter',
+    conservation: conservation || 'À compléter',
+    pregnancyCategory: pregnancyCategory || 'N/A',
+    isPrescriptionRequired: !!isPrescriptionRequired,
+    ppm: ppm ? Number(ppm) : undefined,
     relatedIds: [],
   };
 }
 
 function isDuplicate(existingProducts, incomingProduct) {
-  const normalizedIncoming = `${incomingProduct.name} ${incomingProduct.dci}`.toLowerCase();
-  return existingProducts.some((product) => `${product.name} ${product.dci}`.toLowerCase() === normalizedIncoming);
+  function normalizeKey(value) {
+    return String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .replace(/\s+/g, ' ');
+  }
+
+  const incomingKey = normalizeKey(`${incomingProduct.name} ${incomingProduct.dci}`);
+  for (const product of existingProducts) {
+    const existingKey = normalizeKey(`${product.name} ${product.dci}`);
+    if (existingKey && incomingKey && existingKey === incomingKey) return true;
+    // fallback: DCI token overlap
+    const inDci = normalizeKey(incomingProduct.dci || incomingProduct.name || '');
+    const exDci = normalizeKey(product.dci || product.name || '');
+    const inTokens = new Set(inDci.split(' ').filter(Boolean));
+    const exTokens = new Set(exDci.split(' ').filter(Boolean));
+    const shared = [...inTokens].filter((t) => exTokens.has(t));
+    if (shared.length >= 2) return true;
+  }
+  return false;
 }
 
 function looksLikeInvalidPage(html, url) {
@@ -264,43 +407,47 @@ export async function importProductFromUrl({
   outputPath = seedPath,
   existingProducts = [],
   sourceUrl = url,
+  html = null,
 }) {
   let response;
+  let htmlContent = html;
 
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
-    response = await fetch(url, {
-      redirect: 'follow',
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
-        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
-      },
-    });
-    clearTimeout(timeout);
-  } catch (error) {
-    return { imported: false, reason: 'fetch-error', error };
+  if (!htmlContent) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      response = await fetch(url, {
+        redirect: 'follow',
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+          Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
+        },
+      });
+      clearTimeout(timeout);
+    } catch (error) {
+      return { imported: false, reason: 'fetch-error', error };
+    }
+
+    if (!response.ok) {
+      return { imported: false, reason: 'invalid-page', status: response.status };
+    }
+
+    htmlContent = await response.text();
   }
 
-  if (!response.ok) {
-    return { imported: false, reason: 'invalid-page', status: response.status };
+  if (looksLikeInvalidPage(htmlContent, url)) {
+    return { imported: false, reason: 'invalid-page', status: response?.status };
   }
 
-  const html = await response.text();
-
-  if (looksLikeInvalidPage(html, url)) {
-    return { imported: false, reason: 'invalid-page', status: response.status };
-  }
-
-  const extracted = extractProductDataFromHtml(html, sourceUrl);
+  const extracted = extractProductDataFromHtml(htmlContent, sourceUrl);
 
   if (looksLikeInvalidProductExtraction(extracted)) {
     return { imported: false, reason: 'not-a-product-page', product: null };
   }
 
-  if (!looksLikeProductPage(html, extracted, sourceUrl)) {
+  if (!looksLikeProductPage(htmlContent, extracted, sourceUrl)) {
     return { imported: false, reason: 'not-a-product-page', product: null };
   }
 

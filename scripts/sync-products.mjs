@@ -70,10 +70,62 @@ function normalizeProducts(products) {
     .filter((product) => !looksLikeImportedPlaceholderProduct(product));
 }
 
+function normalizeString(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function splitTokens(value) {
+  return normalizeString(value).split(' ').filter(Boolean);
+}
+
 function normalizeProductKey(product) {
-  const name = String(product.name || '').trim().toLowerCase().replace(/\s+/g, ' ');
-  const dci = String(product.dci || '').trim().toLowerCase().replace(/\s+/g, ' ');
-  return `${name}::${dci}`;
+  const name = normalizeString(product.name);
+  const dci = normalizeString(product.dci);
+  if (dci && dci !== 'a preciser' && dci !== 'a completer' && dci !== 'n/a') {
+    return `${name}::${dci}`;
+  }
+  return name;
+}
+
+function extractProductUrl(product) {
+  const text = String(product.sourceUrl || product.description || '');
+  const match = text.match(/https?:\/\/[\w\-./?&=%#]+/);
+  return match ? match[0].replace(/[.,;]+$/, '') : '';
+}
+
+function areProductsDuplicate(existing, candidate) {
+  const existingName = normalizeString(existing.name);
+  const candidateName = normalizeString(candidate.name);
+  const existingDci = normalizeString(existing.dci);
+  const candidateDci = normalizeString(candidate.dci);
+
+  if (existingName && candidateName && existingName === candidateName && existingDci === candidateDci) return true;
+
+  const existingUrl = extractProductUrl(existing);
+  const candidateUrl = extractProductUrl(candidate);
+  if (existingUrl && candidateUrl && existingUrl === candidateUrl) return true;
+
+  if (existingDci && candidateDci && existingDci === candidateDci) {
+    if (existingName && candidateName && (existingName === candidateName || existingName.includes(candidateName) || candidateName.includes(existingName))) {
+      return true;
+    }
+  }
+
+  const existingTokens = splitTokens(existingDci || existingName);
+  const candidateTokens = splitTokens(candidateDci || candidateName);
+  const sharedTokens = existingTokens.filter((token) => candidateTokens.includes(token));
+  if (sharedTokens.length >= 2) {
+    const sharedNameTokens = splitTokens(existingName).filter((token) => splitTokens(candidateName).includes(token));
+    if (sharedNameTokens.length >= 2) return true;
+  }
+
+  return false;
 }
 
 function isPlaceholderProduct(product) {
@@ -103,31 +155,67 @@ function preferProduct(existing, candidate) {
 }
 
 function dedupeProducts(products) {
-  const productsById = new Map();
-  const uniqueProducts = [];
+  // Merge duplicates by normalized name::dci key, or by similar DCI/name combinations.
+  const map = new Map();
+
+  function isPlaceholderValue(v) {
+    const s = normalizeString(v);
+    return !s || s === 'a preciser' || s === 'a completer';
+  }
+
+  function mergeFields(target, src) {
+    // prefer non-placeholder values
+    for (const key of Object.keys(src)) {
+      const sv = src[key];
+      const tv = target[key];
+      if (sv == null) continue;
+      if (Array.isArray(sv)) {
+        target[key] = Array.from(new Set([...(Array.isArray(tv) ? tv : []), ...sv].filter(Boolean)));
+        continue;
+      }
+      if (typeof sv === 'object') {
+        target[key] = { ...(tv || {}), ...sv };
+        continue;
+      }
+      if (tv == null || tv === '' || isPlaceholderValue(tv)) {
+        target[key] = sv;
+      } else if (isPlaceholderValue(sv)) {
+        // keep tv
+      } else {
+        target[key] = tv;
+      }
+    }
+  }
 
   for (const product of products) {
-    if (product.id != null) {
-      const existing = productsById.get(product.id);
-      if (!existing || preferProduct(existing, product)) {
-        productsById.set(product.id, product);
-      }
+    const key = normalizeProductKey(product);
+    let existing = map.get(key);
+    if (!existing) {
+      existing = [...map.values()].find((candidate) => areProductsDuplicate(candidate, product));
+    }
+
+    if (!existing) {
+      map.set(key, { ...product, categories: Array.isArray(product.categories) ? product.categories : [product.categories].filter(Boolean), relatedIds: Array.isArray(product.relatedIds) ? product.relatedIds : [] });
       continue;
     }
-    uniqueProducts.push(product);
+
+    const preferCandidate = preferProduct(existing, product) ? product : existing;
+    const base = preferCandidate === existing ? existing : product;
+    const other = preferCandidate === existing ? product : existing;
+
+    mergeFields(base, other);
+    base.relatedIds = Array.from(new Set([...(base.relatedIds || []), ...(other.relatedIds || [])].filter(Boolean)));
+    base.categories = Array.from(new Set([...(base.categories || []), ...(other.categories || [])].filter(Boolean)));
+    if (!base.id && other.id) base.id = other.id;
+
+    if (base !== existing) {
+      const existingKey = normalizeProductKey(existing);
+      map.delete(existingKey);
+      map.set(key, base);
+    }
   }
 
-  const seenKeys = new Set();
-  const deduped = [];
-
-  for (const product of [...productsById.values(), ...uniqueProducts]) {
-    const key = normalizeProductKey(product);
-    if (seenKeys.has(key)) continue;
-    seenKeys.add(key);
-    deduped.push(product);
-  }
-
-  return deduped;
+  return Array.from(map.values());
 }
 
 function inferCategoryFromFamily(family) {
@@ -246,20 +334,85 @@ export async function syncProducts() {
     ];
     const uniqueUrls = [...new Set(requestedUrls)];
 
-    for (const sourceUrl of uniqueUrls.slice(0, 5)) {
+    // Check which URLs are already imported to avoid duplicate fetches
+    const alreadyImportedUrls = new Set(
+      products
+        .map((p) => {
+          const match = p.description?.match(/https?:\/\/www\.cure\.ma\/medicaments\/[a-zA-Z0-9-.\/]+/);
+          return match ? match[0].replace(/[.,]$/, '').trim() : null;
+        })
+        .filter(Boolean)
+    );
+
+    const urlsToImport = uniqueUrls.filter((url) => !alreadyImportedUrls.has(url));
+
+    // Limit to 500 URLs per sync run to balance performance and throughput
+    // Adjust based on server performance and rate-limiting concerns
+    const batchToImport = urlsToImport.slice(0, 500);
+
+    // Parallel fetching with concurrency limit of 10 for improved throughput
+    const mapLimit = async (items, limit, fn) => {
+      const results = [];
+      const executing = new Set();
+      for (const item of items) {
+        const p = Promise.resolve().then(() => fn(item));
+        results.push(p);
+        executing.add(p);
+        const clean = () => executing.delete(p);
+        p.then(clean, clean);
+        if (executing.size >= limit) {
+          await Promise.race(executing);
+        }
+      }
+      return Promise.all(results);
+    };
+
+    console.log(`[SYNC] 📊 Statistics:`);
+    console.log(`[SYNC]    • Total discovered URLs: ${uniqueUrls.length}`);
+    console.log(`[SYNC]    • Already imported: ${alreadyImportedUrls.size}`);
+    console.log(`[SYNC]    • New URLs to import: ${urlsToImport.length}`);
+    console.log(`[SYNC]    • Batch size: ${batchToImport.length}`);
+    console.log(`[SYNC]    • Concurrency limit: 10 requests`);
+    console.log(`[SYNC] 🔄 Starting parallel import...\n`);
+
+    const fetched = await mapLimit(batchToImport, 10, async (url) => {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+        const response = await fetch(url, {
+          redirect: 'follow',
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+            Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
+          },
+        });
+        clearTimeout(timeout);
+        if (!response.ok) return { url, ok: false };
+        const html = await response.text();
+        return { url, ok: true, html };
+      } catch {
+        return { url, ok: false };
+      }
+    });
+
+    for (const entry of fetched) {
+      if (!entry.ok) continue;
       const result = await importProductFromUrl({
-        url: sourceUrl,
+        url: entry.url,
         outputPath: sourcePath,
         existingProducts: products,
+        html: entry.html,
       });
 
       if (result.imported) {
         products = [...products, result.product];
-        importedProducts.push({ ...result.product, sourceUrl });
+        importedProducts.push({ ...result.product, sourceUrl: entry.url });
       }
     }
-  } catch {
-    // Ignore missing or malformed source configuration.
+  } catch (err) {
+    console.error('[SYNC] Error during synchronization processing:', err);
   }
 
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
