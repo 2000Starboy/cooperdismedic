@@ -27,6 +27,9 @@ export interface Product {
   therapeuticClass: string;
   categories: ProductCategory[];
   seasons?: ProductSeason[];       // products recommended for specific seasons
+  composition?: string;
+  atcCode?: string;
+  sourceUrl?: string;
   description: string;
   indications: string;
   posology: string;

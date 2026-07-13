@@ -15,6 +15,7 @@
     "products:import": "node ./scripts/import-product-from-url.mjs",
     "products:discover": "node ./scripts/discover-products.mjs",
     "products:approve": "node ./scripts/approve-pending.mjs",
+    "products:enrich-agent": "node ./scripts/enrich-products-agent.mjs",
     "api": "node ./server/products-api.mjs"
   },
   "dependencies": {
