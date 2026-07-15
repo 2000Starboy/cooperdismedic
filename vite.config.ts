@@ -10,4 +10,20 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => {
+          // Remove .json extension if present to match server routes
+          if (path.endsWith('.json')) {
+            return path.slice(0, -5);
+          }
+          return path;
+        },
+      },
+    },
+  },
 })

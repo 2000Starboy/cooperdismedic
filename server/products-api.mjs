@@ -69,6 +69,56 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // PUT /api/products/:id - Update a specific product
+  const putProductMatch = url.pathname.match(/^\/api\/products\/(\d+)$/);
+  if (req.method === 'PUT' && putProductMatch) {
+    try {
+      const productId = parseInt(putProductMatch[1]);
+      let body = '';
+
+      req.on('data', chunk => {
+        body += chunk.toString();
+        if (body.length > 1e6) req.connection.destroy();
+      });
+
+      req.on('end', async () => {
+        try {
+          const updateData = JSON.parse(body);
+          const products = await readProducts();
+          const productIndex = products.findIndex(p => p.id === productId);
+
+          if (productIndex === -1) {
+            sendJson(res, 404, { error: 'Product not found' });
+            return;
+          }
+
+          // Merge the update with existing product
+          products[productIndex] = {
+            ...products[productIndex],
+            ...updateData,
+            id: productId, // Ensure ID doesn't change
+          };
+
+          // Save updated products
+          await fs.writeFile(productsPath, JSON.stringify(products, null, 2), 'utf8');
+
+          console.log(`[EDIT] ✏️  Product updated: ID ${productId} - ${products[productIndex].name}`);
+
+          sendJson(res, 200, {
+            ok: true,
+            message: 'Product updated successfully',
+            product: products[productIndex],
+          });
+        } catch (error) {
+          sendJson(res, 400, { error: 'Invalid request body', details: error.message });
+        }
+      });
+    } catch (error) {
+      sendJson(res, 500, { error: 'Failed to update product', details: error.message });
+    }
+    return;
+  }
+
   sendJson(res, 404, { error: 'Not found' });
 });
 

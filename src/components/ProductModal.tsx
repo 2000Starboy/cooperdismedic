@@ -2,7 +2,7 @@
 // ProductModal.tsx — Premium Reimagined Medical Poster (Quick View)
 // ============================================================================
 
-import { X, ArrowRight, ShieldCheck, FileText, CheckCircle2, FlaskConical, Milestone, Activity, Sparkles, Layers } from 'lucide-react';
+import { X, ArrowRight, ShieldCheck, FileText, CheckCircle2, FlaskConical, Milestone, Activity, Sparkles, Layers, Edit } from 'lucide-react';
 import { Product } from '@/types';
 import { useIsRTL, useTranslation } from '@/lib/i18n';
 import { useEffect, useState } from 'react';
@@ -13,9 +13,10 @@ interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onExpand?: (product: Product) => void;
+  onEdit?: (product: Product) => void;
 }
 
-export default function ProductModal({ product, isOpen, onClose, onExpand }: ProductModalProps) {
+export default function ProductModal({ product, isOpen, onClose, onExpand, onEdit }: ProductModalProps) {
   const isRTL = useIsRTL();
   const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
@@ -174,6 +175,15 @@ export default function ProductModal({ product, isOpen, onClose, onExpand }: Pro
               >
                 Fermer
               </button>
+              {onEdit && (
+                <button 
+                  onClick={() => onEdit(product)}
+                  className="px-6 py-3.5 rounded-2xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-500 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/25 flex items-center justify-center gap-2 group"
+                >
+                  <Edit size={14} />
+                  Modifier
+                </button>
+              )}
               <button 
                 onClick={() => onExpand?.(product)}
                 className="px-6 py-3.5 rounded-2xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 group flex-1 sm:flex-none"

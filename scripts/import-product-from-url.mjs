@@ -1,6 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { chromium } from 'playwright';
+import { gotoNoticePage, extractNoticeSections } from './cure-notice-utils.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
@@ -366,6 +368,43 @@ function isPlausibleProductField(value, fieldName) {
   return normalized.length > 0;
 }
 
+function isPlaceholderValue(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  return !normalized || normalized === 'à compléter' || normalized === 'a compléter' || normalized === 'à préciser' || normalized === 'a preciser' || normalized === 'n/a';
+}
+
+function shouldUsePlaywrightFallback(extracted, url) {
+  const missingFields = ['indications', 'posology', 'contraindications', 'sideEffects', 'conservation']
+    .filter((field) => isPlaceholderValue(extracted[field])).length;
+
+  return /cure\.ma/i.test(url) && missingFields > 0;
+}
+
+function mergeExtractedFields(primary, fallback) {
+  const merged = { ...primary };
+  for (const key of Object.keys(fallback)) {
+    if (isPlaceholderValue(merged[key]) && !isPlaceholderValue(fallback[key])) {
+      merged[key] = fallback[key];
+    }
+  }
+  return merged;
+}
+
+async function extractProductDataWithPlaywright(url) {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  try {
+    const finalUrl = await gotoNoticePage(page, url);
+    await page.waitForLoadState('networkidle');
+    const pageContent = await page.content();
+    const extractedFromPage = extractProductDataFromHtml(pageContent, finalUrl);
+    const noticeSections = await extractNoticeSections(page);
+    return mergeExtractedFields(extractedFromPage, noticeSections);
+  } finally {
+    await browser.close();
+  }
+}
+
 function looksLikeInvalidProductExtraction(extracted) {
   const suspectTitle = String(extracted.name || '').toLowerCase();
   const hasArticleWords = /(article|actualité|actualite|blog|news|communiqu|communiqué)/i.test(suspectTitle);
@@ -441,7 +480,15 @@ export async function importProductFromUrl({
     return { imported: false, reason: 'invalid-page', status: response?.status };
   }
 
-  const extracted = extractProductDataFromHtml(htmlContent, sourceUrl);
+  let extracted = extractProductDataFromHtml(htmlContent, sourceUrl);
+
+  if (shouldUsePlaywrightFallback(extracted, url)) {
+    try {
+      extracted = await extractProductDataWithPlaywright(url);
+    } catch (error) {
+      console.warn('[SYNC] Playwright fallback failed for', url, error.message || error);
+    }
+  }
 
   if (looksLikeInvalidProductExtraction(extracted)) {
     return { imported: false, reason: 'not-a-product-page', product: null };

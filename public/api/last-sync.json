@@ -1,61 +1,6 @@
 {
-  "syncedAt": "2026-07-10T11:25:09.806Z",
-  "count": 370,
-  "importedCount": 9,
-  "importedProducts": [
-    {
-      "id": 1405,
-      "name": "AMLODIPINE GT 5 MG, COMPRIMÉ SÉCABLE",
-      "dci": "Amlodipine",
-      "url": "https://cure.ma/medicaments/amlodipine-gt-5-mg-comprime-secable"
-    },
-    {
-      "id": 1406,
-      "name": "AURICULARUM 90000 UI-100000UI, POUDRE AURICULAIRE ET SOLVANT",
-      "dci": "Oxytétracycline | Polymyxine | Nystatine | Déxaméthasone",
-      "url": "https://cure.ma/medicaments/auricularum-90000-ui-100000ui-poudre-auriculaire-et-solvant"
-    },
-    {
-      "id": 1407,
-      "name": "AVACOR 150 MG, COMPRIMÉ PELLICULÉ",
-      "dci": "Irbesartan",
-      "url": "https://cure.ma/medicaments/avacor-150-mg-comprime-pellicule"
-    },
-    {
-      "id": 1408,
-      "name": "AVAMYS 27. 5 ΜG / PULVÉRISATION, SUSPENSION POUR PULVÉRISATION NASALE",
-      "dci": "Fluticasone",
-      "url": "https://cure.ma/medicaments/avamys-27-5-g-pulverisation-suspension-pour-pulverisation-nasale"
-    },
-    {
-      "id": 1409,
-      "name": "AXIMYCINE 1 G, COMPRIMÉ DISPERSIBLE",
-      "dci": "Amoxicilline",
-      "url": "https://cure.ma/medicaments/aximycine-1-g-comprime-dispersible"
-    },
-    {
-      "id": 1410,
-      "name": "AXIMYCINE 1 G, POUDRE POUR PRÉPARATION INJECTABLE",
-      "dci": "Amoxicilline",
-      "url": "https://cure.ma/medicaments/aximycine-1-g-poudre-pour-preparation-injectable"
-    },
-    {
-      "id": 1411,
-      "name": "AXIMYCINE 500 MG / 5 ML, POUDRE POUR SUSPENSION ORALE (SANS SUCRE)",
-      "dci": "Amoxicilline",
-      "url": "https://cure.ma/medicaments/aximycine-500-mg-5-ml-poudre-pour-suspension-orale-sans-sucre"
-    },
-    {
-      "id": 1412,
-      "name": "AXIMYCINE 500 MG, INJECTABLE",
-      "dci": "Amoxicilline",
-      "url": "https://cure.ma/medicaments/aximycine-500-mg-injectable"
-    },
-    {
-      "id": 1413,
-      "name": "AXONYL 150 MG, COMPRIMÉ PELLICULÉ SÉCABLE [P]",
-      "dci": "Quétiapine",
-      "url": "https://cure.ma/medicaments/axonyl-150-mg-comprime-pellicule-secable-p"
-    }
-  ]
+  "syncedAt": "2026-07-14T09:48:19.876Z",
+  "count": 384,
+  "importedCount": 0,
+  "importedProducts": []
 }

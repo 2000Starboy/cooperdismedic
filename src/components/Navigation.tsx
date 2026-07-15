@@ -290,6 +290,17 @@ export default function Navigation({ darkBackground = false }: NavigationProps) 
             {/* Right Controls */}
             <div className="hidden lg:flex items-center gap-3 relative">
 
+              <button
+                type="button"
+                onClick={triggerSync}
+                disabled={isLoadingSync}
+                className="rounded-full border border-slate-200 bg-white px-3 py-2 text-[12px] font-semibold text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:hover:border-slate-700 dark:hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+                style={{ borderColor: isDark ? '#334155' : '#E2E8F0' }}
+                aria-label="Lancer la synchronisation"
+              >
+                {isLoadingSync ? 'Synchronisation…' : 'Synchroniser'}
+              </button>
+
               {/* Notifications */}
               <div className="relative">
                 <button
