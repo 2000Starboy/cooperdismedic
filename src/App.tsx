@@ -14,6 +14,7 @@ import ProductModal from '@/components/ProductModal';
 import ProductDetail from '@/components/ProductDetail';
 import ProductsPage from '@/pages/ProductsPage';
 import MaintenancePage, { isAuthenticated } from '@/components/MaintenancePage';
+import AdminPage from '@/pages/AdminPage';
 
 import HeroSection from '@/sections/HeroSection';
 import AboutSection from '@/sections/AboutSection';
@@ -30,7 +31,7 @@ import { Product } from '@/data/products-catalogue';
 
 gsap.registerPlugin(ScrollTrigger);
 
-type AppView = 'home' | 'products' | 'detail';
+type AppView = 'home' | 'products' | 'detail' | 'admin';
 
 function AppContent() {
   const [authed, setAuthed]           = useState<boolean>(() => isAuthenticated());
@@ -101,6 +102,12 @@ function AppContent() {
     return <MaintenancePage onAuthenticated={() => setAuthed(true)} />;
   }
 
+  // ── Admin page ─────────────────────────────────────────────────────────────
+  // Admin has its own premium sidebar — no outer nav/footer wrapper needed
+  if (view === 'admin') {
+    return <AdminPage onBack={backToProducts} />;
+  }
+
   // ── Products page ──────────────────────────────────────────────────────────
   if (view === 'products') {
     return (
@@ -108,7 +115,11 @@ function AppContent() {
         <div className="grain-overlay" />
         <Navigation darkBackground />
         <main>
-          <ProductsPage onProductClick={openModal} onBack={goHome} />
+          <ProductsPage 
+            onProductClick={openModal} 
+            onBack={goHome} 
+            onAdminClick={() => setView('admin')}
+          />
         </main>
         <FooterSection />
         {modalProduct && (
@@ -122,6 +133,7 @@ function AppContent() {
       </>
     );
   }
+
 
   // ── Product detail page ───────────────────────────────────────────────────
   if (view === 'detail' && detailProduct) {

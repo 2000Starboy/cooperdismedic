@@ -12,17 +12,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': {
+      // Proxy dynamic API routes to the backend server
+      '^/api/(?:products|login|users)(?:/.*)?$': {
         target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => {
-          // Remove .json extension if present to match server routes
-          if (path.endsWith('.json')) {
-            return path.slice(0, -5);
-          }
-          return path;
-        },
       },
     },
   },

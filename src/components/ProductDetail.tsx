@@ -53,13 +53,40 @@ export default function ProductDetail({ product, onBack, onProductClick }: Produ
     { key: 'conservation', label: 'Conservation', icon: CalendarDays },
   ];
 
+  // Guard: strip any React/Next.js server metadata that leaked into the data
+  // during scraping (e.g. JSON-encoded RSC payload containing manifest links).
+  const sanitizeField = (val: string | undefined): string => {
+    if (!val) return '';
+    const CORRUPTION_MARKERS = [
+      'manifest.webmanifest',
+      '"$","link"',
+      '["$"',
+      'crossOrigin',
+      '{"rel"',
+      '\\"}'  ,
+    ];
+    const isCorrupted = CORRUPTION_MARKERS.some(m => val.includes(m));
+    if (!isCorrupted) return val;
+
+    // Try to extract the clean sentence before the corruption starts
+    const cutPoints = ['\\"}', '"}],[', '\\\\"}']; 
+    for (const cut of cutPoints) {
+      const idx = val.indexOf(cut);
+      if (idx > 0) {
+        const clean = val.substring(0, idx).replace(/\\+$/, '').replace(/"+$/, '').trim();
+        if (clean.length > 5) return clean;
+      }
+    }
+    return '';
+  };
+
   const getTabContent = () => {
     switch (activeTab) {
-      case 'indications': return product.indications;
-      case 'posology': return product.posology;
-      case 'contraindications': return product.contraindications;
-      case 'sideEffects': return product.sideEffects;
-      case 'conservation': return product.conservation;
+      case 'indications': return sanitizeField(product.indications);
+      case 'posology': return sanitizeField(product.posology);
+      case 'contraindications': return sanitizeField(product.contraindications);
+      case 'sideEffects': return sanitizeField(product.sideEffects);
+      case 'conservation': return sanitizeField(product.conservation);
       default: return '';
     }
   };

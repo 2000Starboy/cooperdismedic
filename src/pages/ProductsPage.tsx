@@ -3,11 +3,12 @@
 // ============================================================================
 
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Pill, Activity, ShieldPlus, ArrowRight, ArrowLeft, Eye, Bone, Stethoscope, Droplet, HeartPulse, Package } from 'lucide-react';
+import { Search, Pill, Activity, ShieldPlus, ArrowRight, ArrowLeft, Eye, Bone, Stethoscope, Droplet, HeartPulse, Package, ShieldCheck, User, LogOut, X } from 'lucide-react';
 import { useTranslation, useIsRTL } from '@/lib/i18n';
 import { PRODUCTS as fallbackProducts } from '@/data/products-catalogue';
 import { Product } from '@/types';
-import { loadCatalogProducts } from '@/lib/products-data';
+import { loadCatalogProducts, getCategoryTranslation, categoryStyleMapping } from '@/lib/products-data';
+import { getLoggedInUser } from '@/components/MaintenancePage';
 
 const categoryIcons: Record<string, React.ElementType> = {
   Cardiologie: HeartPulse,
@@ -34,15 +35,26 @@ const categoryColors: Record<string, { bg: string, color: string }> = {
 interface ProductsPageProps {
   onProductClick?: (product: Product) => void;
   onBack?: () => void;
+  onAdminClick?: () => void;
 }
 
-export default function ProductsPage({ onProductClick, onBack }: ProductsPageProps) {
+export default function ProductsPage({ onProductClick, onBack, onAdminClick }: ProductsPageProps) {
   const { t, locale } = useTranslation();
   const isRTL = useIsRTL();
   
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState<Product[]>(fallbackProducts);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const currentUser = getLoggedInUser();
+  const showAdminButton = currentUser && (currentUser.role === 'admin' || currentUser.role === 'super admin');
+
+  const handleLogout = () => {
+    localStorage.removeItem('cd_auth');
+    localStorage.removeItem('cd_user');
+    window.location.reload();
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -60,9 +72,15 @@ export default function ProductsPage({ onProductClick, onBack }: ProductsPagePro
   }, [products]);
 
   const filteredProducts = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
     return products
       .filter(p => activeCategory === 'all' || p.categories.includes(activeCategory as any))
-      .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      .filter(p => 
+        (p.name && p.name.toLowerCase().includes(q)) || 
+        (p.description && p.description.toLowerCase().includes(q)) ||
+        (p.dci && p.dci.toLowerCase().includes(q)) ||
+        (p.laboratory && p.laboratory.toLowerCase().includes(q))
+      );
   }, [activeCategory, searchQuery, products]);
 
   return (
@@ -72,15 +90,41 @@ export default function ProductsPage({ onProductClick, onBack }: ProductsPagePro
       <div className="bg-white border-b border-slate-200">
         <div className="container mx-auto px-6 lg:px-16 pt-28 pb-12">
           
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-blue-600 transition-colors mb-8 group"
-            >
-              <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-1" />
-              Retour à l'accueil
-            </button>
-          )}
+          <div className="flex items-center justify-between mb-8">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-blue-600 transition-colors group"
+              >
+                <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-1" />
+                Retour à l'accueil
+              </button>
+            )}
+
+            <div className="flex items-center gap-3">
+              {currentUser && (
+                <button
+                  onClick={() => setIsProfileOpen(true)}
+                  className="flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-slate-900 transition-all bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl border border-slate-200"
+                >
+                  <User size={14} />
+                  Mon Compte
+                </button>
+              )}
+
+              {showAdminButton && onAdminClick && (
+                <button
+                  onClick={onAdminClick}
+                  className="flex items-center gap-2 text-sm font-bold text-blue-655 hover:text-white transition-all bg-blue-500/10 hover:bg-blue-600 px-3.5 py-1.5 rounded-xl border border-blue-550/20"
+                >
+                  <ShieldCheck size={14} />
+                  Gérer le catalogue
+                </button>
+              )}
+            </div>
+          </div>
+
+
 
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="max-w-2xl">
@@ -143,7 +187,7 @@ export default function ProductsPage({ onProductClick, onBack }: ProductsPagePro
                       boxShadow: isActive ? '0 2px 8px hsl(213,94%,45% / 0.25)' : 'none',
                     }}
                   >
-                    {cat === 'all' ? 'Tous' : cat}
+                    {getCategoryTranslation(cat, t)}
                   </button>
                 );
               })}
@@ -157,8 +201,9 @@ export default function ProductsPage({ onProductClick, onBack }: ProductsPagePro
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map(product => {
             const primaryCat = product.categories[0];
-            const Icon = categoryIcons[primaryCat] || Pill;
-            const catColor = categoryColors[primaryCat] || { bg: 'hsl(213,94%,45% / 0.08)', color: 'hsl(213,94%,45%)' };
+            const mappedCat = categoryStyleMapping[primaryCat] || primaryCat;
+            const Icon = categoryIcons[mappedCat] || Pill;
+            const catColor = categoryColors[mappedCat] || { bg: 'hsl(213,94%,45% / 0.08)', color: 'hsl(213,94%,45%)' };
 
             return (
               <div
@@ -196,7 +241,7 @@ export default function ProductsPage({ onProductClick, onBack }: ProductsPagePro
                     className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block"
                     style={{ color: catColor.color }}
                   >
-                    {primaryCat}
+                    {getCategoryTranslation(primaryCat, t)}
                   </span>
 
                   {/* Product name */}
@@ -252,6 +297,69 @@ export default function ProductsPage({ onProductClick, onBack }: ProductsPagePro
           </div>
         )}
       </div>
+
+      {/* ── PROFILE ACCOUNT MODAL ────────────────────────────────────── */}
+      {isProfileOpen && currentUser && (
+        <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsProfileOpen(false)}
+          />
+
+          {/* Modal */}
+          <div className="relative z-10 w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-8 animate-in fade-in zoom-in-95 duration-200">
+            {/* Close */}
+            <button
+              onClick={() => setIsProfileOpen(false)}
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+            >
+              <X size={16} />
+            </button>
+
+            {/* Icon */}
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-6 mx-auto">
+              <User size={28} className="text-blue-600" />
+            </div>
+
+            {/* Title */}
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white text-center mb-1 font-display" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              Mon Compte Utilisateur
+            </h2>
+            <p className="text-xs text-slate-400 text-center mb-6">
+              Réseau interne Cooper Dismedic
+            </p>
+
+            {/* User details badge */}
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-5 mb-6 text-sm border border-slate-100 dark:border-slate-700/50 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">Nom Complet</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{currentUser.fullName}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">Identifiant</span>
+                <span className="font-mono text-slate-800 dark:text-slate-200">@{currentUser.username}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">Rôle</span>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-650 dark:text-blue-400 border border-blue-500/20 uppercase tracking-wide">
+                  {currentUser.role}
+                </span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <button
+              onClick={handleLogout}
+              className="w-full h-11 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-red-500/20"
+            >
+              <LogOut size={16} />
+              Se déconnecter
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

@@ -1,13 +1,24 @@
 // ============================================================================
-// MaintenancePage.tsx — Premium Light Theme B2B Portal
+// MaintenancePage.tsx — Premium Light Theme B2B Portal with Multi-Role Login
 // ============================================================================
 
 import { useState } from 'react';
-import { Eye, EyeOff, ShieldCheck, ArrowRight, ArrowLeft, Activity, Lock } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, ArrowRight, ArrowLeft, Activity, Lock, User } from 'lucide-react';
 
 export const isAuthenticated = (): boolean => {
   if (typeof window === 'undefined') return false;
   return localStorage.getItem('cd_auth') === 'true';
+};
+
+export const getLoggedInUser = () => {
+  if (typeof window === 'undefined') return null;
+  const userStr = localStorage.getItem('cd_user');
+  if (!userStr) return null;
+  try {
+    return JSON.parse(userStr);
+  } catch {
+    return null;
+  }
 };
 
 interface MaintenancePageProps {
@@ -16,25 +27,37 @@ interface MaintenancePageProps {
 
 export default function MaintenancePage({ onAuthenticated }: MaintenancePageProps) {
   const [showLogin, setShowLogin] = useState(false);
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    setTimeout(() => {
-      if (password === 'dismedic@2026') {
-        localStorage.setItem('cd_auth', 'true');
-        onAuthenticated?.();
-      } else {
-        setError('Mot de passe incorrect. Veuillez réessayer.');
-        setLoading(false);
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username.trim(), password })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || 'Identifiants incorrects');
       }
-    }, 800);
+
+      const result = await response.json();
+      localStorage.setItem('cd_auth', 'true');
+      localStorage.setItem('cd_user', JSON.stringify(result.user));
+      onAuthenticated?.();
+    } catch (err) {
+      setError((err as Error).message || 'Identifiant ou mot de passe incorrect');
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,20 +86,20 @@ export default function MaintenancePage({ onAuthenticated }: MaintenancePageProp
           {/* Status Badge */}
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-950/40 border border-blue-500/20 text-[#60a5fa] text-xs font-semibold uppercase tracking-wider mb-8">
             <Activity size={12} className="animate-pulse text-[#38bdf8]" />
-            <span className="tracking-wider">Système en pause</span>
+            <span className="tracking-wider">Portail Sécurisé</span>
           </div>
           
           {/* Main Headline */}
           <h1 className="text-4xl lg:text-5xl font-extrabold leading-tight text-white mb-6 font-display">
-            Mise à jour de <br />
+            Espace Privé B2B <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
-              l'infrastructure
+              Cooper Dismedic
             </span>
           </h1>
           
           {/* Descriptive Text */}
           <p className="text-slate-300 text-sm lg:text-base leading-relaxed max-w-md">
-            Nous déployons la nouvelle version du portail Cooper Dismedic. L'accès public est temporairement suspendu pour garantir l'intégrité des données.
+            Bienvenue sur le répertoire officiel des produits Cooper Dismedic. Veuillez vous connecter avec vos accès pour consulter le catalogue.
           </p>
         </div>
 
@@ -107,13 +130,13 @@ export default function MaintenancePage({ onAuthenticated }: MaintenancePageProp
               </div>
               
               {/* Heading */}
-              <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-4 font-display">
+              <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-4 font-display" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 Accès Restreint
               </h2>
               
               {/* Paragraph */}
               <p className="text-slate-500 text-sm leading-relaxed mb-8 max-w-sm">
-                Ce portail est actuellement verrouillé. Si vous êtes un collaborateur Cooper Dismedic, vous pouvez vous authentifier pour contourner la maintenance.
+                Ce portail est réservé aux professionnels. Veuillez vous authentifier pour accéder au catalogue de produits.
               </p>
 
               {/* Action Card Button */}
@@ -122,11 +145,11 @@ export default function MaintenancePage({ onAuthenticated }: MaintenancePageProp
                 className="group w-full bg-white border border-slate-100 hover:border-blue-500/50 hover:shadow-md rounded-2xl p-4 transition-all duration-300 flex items-center gap-4 text-left shadow-sm"
               >
                 <div className="w-12 h-12 bg-slate-950 rounded-xl flex items-center justify-center text-white shrink-0 group-hover:scale-95 transition-transform duration-300">
-                  <Lock size={18} />
+                  <User size={18} />
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-bold text-slate-900 font-display">Espace Collaborateur</div>
-                  <div className="text-xs text-slate-400 mt-0.5">Authentification requise</div>
+                  <div className="text-sm font-bold text-slate-900 font-display">Connexion Collaborateur</div>
+                  <div className="text-xs text-slate-400 mt-0.5">Saisir vos identifiants</div>
                 </div>
                 <ArrowRight size={18} className="text-slate-400 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all ml-auto shrink-0" />
               </button>
@@ -136,25 +159,40 @@ export default function MaintenancePage({ onAuthenticated }: MaintenancePageProp
             <div className="w-full max-w-md mx-auto flex flex-col items-stretch animate-in fade-in zoom-in-95 duration-300">
               {/* Back Button */}
               <button 
-                onClick={() => { setShowLogin(false); setError(''); setPassword(''); }}
+                onClick={() => { setShowLogin(false); setError(''); setPassword(''); setUsername(''); }}
                 className="self-start w-10 h-10 rounded-full bg-white border border-slate-200 text-slate-500 flex items-center justify-center mb-6 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm"
               >
                 <ArrowLeft size={16} />
               </button>
 
               {/* Heading */}
-              <h2 className="text-2xl lg:text-3xl font-extrabold text-slate-900 mb-1 font-display">
-                Connexion Sécurisée
+              <h2 className="text-2xl lg:text-3xl font-extrabold text-slate-900 mb-1 font-display" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                Connexion Portail
               </h2>
               <p className="text-sm text-slate-500 mb-8">
-                Réseau interne Cooper Dismedic
+                Entrez votre identifiant et votre mot de passe
               </p>
 
               {/* Form */}
               <form onSubmit={handleLogin} className="space-y-5">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">
-                    Mot de passe employé
+                    Identifiant
+                  </label>
+                  <input 
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full px-5 py-4 rounded-xl bg-white border border-slate-200 text-slate-900 font-medium focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-350 shadow-sm"
+                    placeholder="Ex: pharmacien ou admin"
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">
+                    Mot de passe
                   </label>
                   <div className="relative">
                     <input 
@@ -163,7 +201,7 @@ export default function MaintenancePage({ onAuthenticated }: MaintenancePageProp
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full px-5 py-4 rounded-xl bg-white border border-slate-200 text-slate-900 font-medium focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-300 shadow-sm"
                       placeholder="••••••••"
-                      autoFocus
+                      required
                     />
                     <button 
                       type="button"
@@ -184,13 +222,13 @@ export default function MaintenancePage({ onAuthenticated }: MaintenancePageProp
 
                 <button 
                   type="submit"
-                  disabled={loading || !password}
+                  disabled={loading || !username || !password}
                   className="relative w-full h-14 rounded-xl flex items-center justify-center font-bold text-white transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-700"
                 >
                   {loading ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
-                    "Accéder au portail"
+                    "Se connecter"
                   )}
                 </button>
               </form>

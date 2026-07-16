@@ -1,0 +1,20 @@
+[
+  {
+    "username": "superadmin",
+    "password": "dismedic@2026",
+    "role": "super admin",
+    "fullName": "Super Administrateur"
+  },
+  {
+    "username": "admin",
+    "password": "dismedic@2026",
+    "role": "admin",
+    "fullName": "Administrateur Cooper"
+  },
+  {
+    "username": "pharmacien",
+    "password": "dismedic@2026",
+    "role": "pharmacien",
+    "fullName": "Pharmacien Dismedic"
+  }
+]

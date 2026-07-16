@@ -25,7 +25,7 @@ export interface Product {
   form: string;                    // Comprimé, Sirop, Injectable, Crème…
   dosage: string;
   therapeuticClass: string;
-  categories: ProductCategory[];
+  categories: (ProductCategory | string)[];
   seasons?: ProductSeason[];       // products recommended for specific seasons
   composition?: string;
   atcCode?: string;
@@ -36,9 +36,12 @@ export interface Product {
   contraindications: string;
   sideEffects: string;
   conservation: string;
-  pregnancyCategory: 'A' | 'B' | 'C' | 'D' | 'X' | 'N/A';
+  pregnancyCategory: 'A' | 'B' | 'C' | 'D' | 'X' | 'N/A' | string;
   isPrescriptionRequired: boolean;
   ppm?: number;                    // Prix Public Maroc (optional informational)
+  ppv?: number;                    // Prix de Vente Pharmacie (optional informational)
+  active?: boolean;                // Soft delete state (active: false means deleted)
+  status?: string;                 // Status from API (e.g. active, pending, deleted)
   relatedIds?: number[];
 }
 

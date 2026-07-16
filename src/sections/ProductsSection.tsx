@@ -10,7 +10,7 @@ import { useTranslation, useIsRTL } from '@/lib/i18n';
 import { PRODUCTS as fallbackProducts } from '@/data/products-catalogue';
 import ProductModal from '@/components/ProductModal';
 import { Product } from '@/data/products-catalogue';
-import { loadCatalogProducts } from '@/lib/products-data';
+import { loadCatalogProducts, getCategoryTranslation } from '@/lib/products-data';
 
 const categoryIcons: Record<string, React.ElementType> = {
   cardiovascular: HeartPulse,
@@ -28,6 +28,24 @@ const categoryColors: Record<string, { bg: string, color: string }> = {
   antibiotic: { bg: 'hsl(160,84%,39% / 0.08)', color: 'hsl(160,84%,39%)' },
   dermatology: { bg: 'hsl(190,80%,40% / 0.08)', color: 'hsl(190,80%,40%)' },
   respiratory: { bg: 'hsl(280,60%,55% / 0.08)', color: 'hsl(280,60%,55%)' },
+};
+
+const styleKeysMap: Record<string, string> = {
+  cardiology: 'cardiovascular',
+  cardiovascular: 'cardiovascular',
+  analgesic: 'analgesic',
+  analgesia: 'analgesic',
+  pain_management: 'analgesic',
+  digestive: 'digestive',
+  gastroenterology: 'digestive',
+  hepatology: 'digestive',
+  antibiotic: 'antibiotic',
+  infectiology: 'antibiotic',
+  hiv: 'antibiotic',
+  dermatology: 'dermatology',
+  pneumology: 'respiratory',
+  pulmonology: 'respiratory',
+  respiratory: 'respiratory',
 };
 
 function isImportedPlaceholderProduct(product: Product) {
@@ -184,7 +202,7 @@ export default function ProductsSection({ onProductClick, onViewAll }: ProductsS
                     color: activeCategory === cat ? 'white' : 'hsl(var(--cd-heading))',
                   }}
                 >
-                  {t(`products.${cat}`, cat)}
+                  {getCategoryTranslation(cat, t)}
                 </button>
               ))}
             </div>
@@ -207,8 +225,9 @@ export default function ProductsSection({ onProductClick, onViewAll }: ProductsS
           <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {filteredProducts.map(product => {
               const primaryCat = product.categories[0];
-              const Icon = categoryIcons[primaryCat] || Pill;
-              const catColor = categoryColors[primaryCat] || { bg: 'hsl(213,94%,45% / 0.08)', color: 'hsl(213,94%,45%)' };
+              const styleKey = styleKeysMap[primaryCat] || primaryCat;
+              const Icon = categoryIcons[styleKey] || Pill;
+              const catColor = categoryColors[styleKey] || { bg: 'hsl(213,94%,45% / 0.08)', color: 'hsl(213,94%,45%)' };
 
               return (
                 <div
@@ -233,7 +252,7 @@ export default function ProductsSection({ onProductClick, onViewAll }: ProductsS
                     </div>
 
                     <span className="text-[10px] font-bold uppercase tracking-wider block mb-1" style={{ color: catColor.color }}>
-                      {primaryCat}
+                      {getCategoryTranslation(primaryCat, t)}
                     </span>
                     <h3 
                       className="font-bold text-base text-slate-900 dark:text-white leading-tight mb-2 truncate"

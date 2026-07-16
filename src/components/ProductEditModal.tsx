@@ -1,18 +1,42 @@
 // ============================================================================
-// ProductEditModal.tsx — Modal pour modifier les champs d'un produit
+// ProductEditModal.tsx — Modal pour ajouter ou modifier les champs d'un produit
 // ============================================================================
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Save, AlertCircle } from 'lucide-react';
 import { Product } from '@/types';
 import { useIsRTL } from '@/lib/i18n';
 
 interface ProductEditModalProps {
-  product: Product | null;
+  product: Product | null; // null represents Creation mode
   isOpen: boolean;
   onClose: () => void;
   onSave: (updatedProduct: Product) => Promise<void>;
 }
+
+const emptyProduct = (): Product => ({
+  id: 0,
+  name: '',
+  dci: '',
+  laboratory: '',
+  form: '',
+  dosage: '',
+  therapeuticClass: '',
+  categories: ['analgesic'],
+  ppm: undefined,
+  ppv: undefined,
+  description: '',
+  indications: '',
+  posology: '',
+  contraindications: '',
+  sideEffects: '',
+  conservation: '',
+  pregnancyCategory: 'N/A',
+  isPrescriptionRequired: false,
+  status: 'active',
+  active: true,
+  relatedIds: [],
+});
 
 export default function ProductEditModal({ 
   product, 
@@ -21,22 +45,32 @@ export default function ProductEditModal({
   onSave 
 }: ProductEditModalProps) {
   const isRTL = useIsRTL();
-  const [formData, setFormData] = useState<Product | null>(product);
+  const [formData, setFormData] = useState<Product>(emptyProduct());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  if (!isOpen || !product) return null;
+  // Sync form state when open/close or product changes
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(product ? { ...product } : emptyProduct());
+      setError(null);
+      setSuccess(false);
+    }
+  }, [isOpen, product]);
+
+  if (!isOpen) return null;
 
   const handleChange = (field: keyof Product, value: any) => {
-    if (formData) {
-      setFormData({ ...formData, [field]: value });
-    }
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData) return;
+    if (!formData.name.trim()) {
+      setError('Le nom du produit est obligatoire.');
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -55,7 +89,7 @@ export default function ProductEditModal({
     }
   };
 
-  if (!formData) return null;
+  const isEditMode = product !== null;
 
   return (
     <div className={`fixed inset-0 z-[10000] flex items-center justify-center p-4 ${isOpen ? '' : 'hidden'}`}>
@@ -68,9 +102,9 @@ export default function ProductEditModal({
       {/* Modal Card */}
       <div className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-            Modifier le produit
+        <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 z-10">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            {isEditMode ? 'Modifier le produit' : 'Ajouter un produit'}
           </h2>
           <button
             onClick={onClose}
@@ -85,7 +119,7 @@ export default function ProductEditModal({
           {/* Success Message */}
           {success && (
             <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300">
-              ✅ Produit modifié avec succès!
+              ✅ Produit {isEditMode ? 'modifié' : 'créé'} avec succès!
             </div>
           )}
 
@@ -120,7 +154,7 @@ export default function ProductEditModal({
               </label>
               <input
                 type="text"
-                value={formData.dci}
+                value={formData.dci || ''}
                 onChange={(e) => handleChange('dci', e.target.value)}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -133,7 +167,7 @@ export default function ProductEditModal({
               </label>
               <input
                 type="text"
-                value={formData.laboratory}
+                value={formData.laboratory || ''}
                 onChange={(e) => handleChange('laboratory', e.target.value)}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -146,7 +180,7 @@ export default function ProductEditModal({
               </label>
               <input
                 type="text"
-                value={formData.form}
+                value={formData.form || ''}
                 onChange={(e) => handleChange('form', e.target.value)}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -159,7 +193,7 @@ export default function ProductEditModal({
               </label>
               <input
                 type="text"
-                value={formData.dosage}
+                value={formData.dosage || ''}
                 onChange={(e) => handleChange('dosage', e.target.value)}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -168,13 +202,27 @@ export default function ProductEditModal({
             {/* PPM (Prix) */}
             <div>
               <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                PPM (Prix en MAD)
+                PPM (Prix public Marocain en MAD)
               </label>
               <input
                 type="number"
                 step="0.01"
-                value={formData.ppm}
-                onChange={(e) => handleChange('ppm', parseFloat(e.target.value))}
+                value={formData.ppm !== undefined ? formData.ppm : ''}
+                onChange={(e) => handleChange('ppm', e.target.value ? parseFloat(e.target.value) : undefined)}
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* PPV (Prix de vente pharmacie) */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                PPV (Prix de vente pharmacie)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.ppv !== undefined ? formData.ppv : ''}
+                onChange={(e) => handleChange('ppv', e.target.value ? parseFloat(e.target.value) : undefined)}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -186,7 +234,7 @@ export default function ProductEditModal({
               </label>
               <input
                 type="text"
-                value={formData.therapeuticClass}
+                value={formData.therapeuticClass || ''}
                 onChange={(e) => handleChange('therapeuticClass', e.target.value)}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -198,9 +246,9 @@ export default function ProductEditModal({
                 Description
               </label>
               <textarea
-                value={formData.description}
+                value={formData.description || ''}
                 onChange={(e) => handleChange('description', e.target.value)}
-                rows={4}
+                rows={3}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -211,9 +259,9 @@ export default function ProductEditModal({
                 Indications
               </label>
               <textarea
-                value={formData.indications}
+                value={formData.indications || ''}
                 onChange={(e) => handleChange('indications', e.target.value)}
-                rows={3}
+                rows={2}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -224,7 +272,7 @@ export default function ProductEditModal({
                 Posologie
               </label>
               <textarea
-                value={formData.posology}
+                value={formData.posology || ''}
                 onChange={(e) => handleChange('posology', e.target.value)}
                 rows={2}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -237,7 +285,7 @@ export default function ProductEditModal({
                 Contre-indications
               </label>
               <textarea
-                value={formData.contraindications}
+                value={formData.contraindications || ''}
                 onChange={(e) => handleChange('contraindications', e.target.value)}
                 rows={2}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -250,7 +298,7 @@ export default function ProductEditModal({
                 Effets secondaires
               </label>
               <textarea
-                value={formData.sideEffects}
+                value={formData.sideEffects || ''}
                 onChange={(e) => handleChange('sideEffects', e.target.value)}
                 rows={2}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -263,7 +311,7 @@ export default function ProductEditModal({
                 Conservation
               </label>
               <textarea
-                value={formData.conservation}
+                value={formData.conservation || ''}
                 onChange={(e) => handleChange('conservation', e.target.value)}
                 rows={2}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -288,14 +336,33 @@ export default function ProductEditModal({
             {/* Categories */}
             <div>
               <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                Catégories (virgule-séparées)
+                Catégories (séparées par des virgules)
               </label>
               <input
                 type="text"
-                value={formData.categories.join(', ')}
-                onChange={(e) => handleChange('categories', e.target.value.split(',').map(c => c.trim()))}
+                value={formData.categories ? formData.categories.join(', ') : ''}
+                onChange={(e) => handleChange('categories', e.target.value.split(',').map(c => c.trim()).filter(Boolean))}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+
+            {/* Pregnancy Category */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                Catégorie de grossesse
+              </label>
+              <select
+                value={formData.pregnancyCategory || 'N/A'}
+                onChange={(e) => handleChange('pregnancyCategory', e.target.value)}
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="X">X</option>
+                <option value="N/A">N/A</option>
+              </select>
             </div>
           </div>
 
@@ -315,7 +382,7 @@ export default function ProductEditModal({
               className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-semibold transition flex items-center justify-center gap-2"
             >
               <Save size={18} />
-              {loading ? 'Sauvegarde...' : 'Enregistrer les modifications'}
+              {loading ? 'Enregistrement...' : isEditMode ? 'Enregistrer les modifications' : 'Créer le produit'}
             </button>
           </div>
         </form>
